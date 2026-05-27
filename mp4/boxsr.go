@@ -1,8 +1,6 @@
 package mp4
 
 import (
-	"fmt"
-
 	"github.com/Eyevinn/mp4ff/bits"
 )
 
@@ -171,139 +169,39 @@ type BoxDecoderSR func(hdr BoxHeader, startPos uint64, sw bits.SliceReader) (Box
 
 // DecodeBoxSR - decode a box from SliceReader
 func DecodeBoxSR(startPos uint64, sr bits.SliceReader) (Box, error) {
-	h, err := DecodeHeaderSR(sr)
-	if err != nil {
-		return nil, err
-	}
-	return DecodeBoxBodySR(startPos, h, sr)
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeHeaderSR - decode a box header (size + box type + possible largeSize) from sr
 func DecodeHeaderSR(sr bits.SliceReader) (BoxHeader, error) {
-	if sr.NrRemainingBytes() < boxHeaderSize {
-		return BoxHeader{}, fmt.Errorf("not enough bytes to read box header, need %d, have %d", boxHeaderSize, sr.NrRemainingBytes())
-	}
-	size := uint64(sr.ReadUint32())
-	boxType := sr.ReadFixedLengthString(4)
-	headerLen := boxHeaderSize
-	switch size {
-	case 1: // size 1 means large size in next 8 bytes
-		if boxType != "mdat" {
-			return BoxHeader{}, fmt.Errorf("extended size not supported for box type %s", boxType)
-		}
-		size = sr.ReadUint64()
-		headerLen += largeSizeLen
-	case 0: // size 0 means to end of file
-		return BoxHeader{}, fmt.Errorf("Size 0, meaning to end of file, not supported")
-	}
-	if uint64(headerLen) > size {
-		return BoxHeader{}, fmt.Errorf("box header size %d exceeds box size %d", headerLen, size)
-	}
-	return BoxHeader{boxType, size, headerLen}, sr.AccError()
+	_ = "STUB: not implemented"
+	return *new(BoxHeader), nil
 }
+
+// size 1 means large size in next 8 bytes
+
+// size 0 means to end of file
 
 // DecodeBoxBodySR - decode box body from SliceReader given BoxHeader
 func DecodeBoxBodySR(startPos uint64, hdr BoxHeader, sr bits.SliceReader) (Box, error) {
-	maxSize := uint64(sr.NrRemainingBytes()) + uint64(hdr.Hdrlen)
-	// In the following, we do not block mdat to allow for the case
-	// that the first kiloBytes of a file are fetched and parsed to
-	// get the init part of a file. In the future, a new decode option that
-	// stops before the mdat starts is a better alternative.
-	if hdr.Size > maxSize && hdr.Name != "mdat" {
-		return nil, fmt.Errorf("decode box %q, size %d too big (max %d)", hdr.Name, hdr.Size, maxSize)
-	}
-
-	d, ok := decodersSR[hdr.Name]
-
-	var b Box
-	var err error
-	if !ok {
-		b, err = DecodeUnknownSR(hdr, startPos, sr)
-	} else {
-		b, err = d(hdr, startPos, sr)
-	}
-	if err != nil {
-		return nil, fmt.Errorf("decode %s pos %d: %w", hdr.Name, startPos, err)
-	}
-
-	return b, nil
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
+
+// In the following, we do not block mdat to allow for the case
+// that the first kiloBytes of a file are fetched and parsed to
+// get the init part of a file. In the future, a new decode option that
+// stops before the mdat starts is a better alternative.
 
 // DecodeFile - parse and decode a file from reader r with optional file options.
 // For example, the file options overwrite the default decode or encode mode.
 func DecodeFileSR(sr bits.SliceReader, options ...Option) (*File, error) {
-	f := NewFile()
+	_ = "STUB: not implemented"
 
 	// apply options to change the default decode or encode mode
-	f.ApplyOptions(options...)
-
-	var boxStartPos uint64 = 0
-	lastBoxType := ""
-
-	if f.fileDecMode == DecModeLazyMdat {
-		return nil, fmt.Errorf("no support for lazy mdat in DecodeFileSR")
-	}
-
-LoopBoxes:
-	for {
-		var box Box
-		var err error
-		if sr.NrRemainingBytes() == 0 {
-			break LoopBoxes
-		}
-
-		box, err = DecodeBoxSR(boxStartPos, sr)
-		if err != nil {
-			return nil, err
-		}
-		boxType, boxSize := box.Type(), box.Size()
-		switch boxType {
-		case "mdat":
-			if f.isFragmented {
-				if lastBoxType != "moof" {
-					return nil, fmt.Errorf("does not support %v between moof and mdat", lastBoxType)
-				}
-			} else {
-				if f.Mdat != nil {
-					oldPayloadSize := f.Mdat.Size() - f.Mdat.HeaderSize()
-					newMdat := box.(*MdatBox)
-					newPayloadSize := newMdat.Size() - newMdat.HeaderSize()
-					if oldPayloadSize > 0 && newPayloadSize > 0 {
-						return nil, fmt.Errorf("only one non-empty mdat box supported (payload sizes %d and %d)",
-							oldPayloadSize, newPayloadSize)
-					}
-				}
-			}
-		case "moof":
-			moof := box.(*MoofBox)
-			for _, traf := range moof.Trafs {
-				if ok, parsed := traf.ContainsSencBox(); ok && !parsed {
-					defaultIVSize := byte(0)
-					if f.Moov != nil {
-						trackID := traf.Tfhd.TrackID
-						if !f.Moov.IsEncrypted(trackID) {
-							continue
-						}
-						sinf := f.Moov.GetSinf(trackID)
-						if sinf != nil && sinf.Schi != nil && sinf.Schi.Tenc != nil {
-							defaultIVSize = sinf.Schi.Tenc.DefaultPerSampleIVSize
-						}
-					}
-					err = traf.ParseReadSenc(defaultIVSize, moof.StartPos)
-					if err != nil {
-						if f.Moov == nil {
-							// No moov and heuristic failed.
-							// Leave senc deferred for caller to parse later with init info.
-							continue
-						}
-						return nil, err
-					}
-				}
-			}
-		}
-		f.AddChild(box, boxStartPos)
-		lastBoxType = boxType
-		boxStartPos += boxSize
-	}
-	return f, nil
+	return nil, nil
 }
+
+// No moov and heuristic failed.
+// Leave senc deferred for caller to parse later with init info.

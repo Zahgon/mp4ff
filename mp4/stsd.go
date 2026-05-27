@@ -1,8 +1,6 @@
 package mp4
 
 import (
-	"encoding/binary"
-	"fmt"
 	"io"
 
 	"github.com/Eyevinn/mp4ff/bits"
@@ -57,204 +55,59 @@ type StsdBox struct {
 
 // NewStsdBox - Generate a new empty stsd box
 func NewStsdBox() *StsdBox {
-	return &StsdBox{}
+	_ = "STUB: not implemented"
+
+	// AddChild - Add a child box, set relevant pointer, and update SampleCount
+	return nil
 }
 
-// AddChild - Add a child box, set relevant pointer, and update SampleCount
-func (s *StsdBox) AddChild(box Box) {
-	switch box.Type() {
-	case "avc1", "avc3":
-		s.AvcX = box.(*VisualSampleEntryBox)
-	case "hvc1", "hev1":
-		s.HvcX = box.(*VisualSampleEntryBox)
-	case "vvc1", "vvi1":
-		s.VvcX = box.(*VisualSampleEntryBox)
-	case "encv":
-		s.Encv = box.(*VisualSampleEntryBox)
-	case "av01":
-		s.Av01 = box.(*VisualSampleEntryBox)
-	case "vp08", "vp09":
-		s.VpXX = box.(*VisualSampleEntryBox)
-	case "avs3":
-		s.Avs3 = box.(*VisualSampleEntryBox)
-	case "mp4a":
-		s.Mp4a = box.(*AudioSampleEntryBox)
-	case "ac-3":
-		s.AC3 = box.(*AudioSampleEntryBox)
-	case "ec-3":
-		s.EC3 = box.(*AudioSampleEntryBox)
-	case "ac-4":
-		s.AC4 = box.(*AudioSampleEntryBox)
-	case "Opus":
-		s.Opus = box.(*AudioSampleEntryBox)
-	case "iamf":
-		s.Iamf = box.(*AudioSampleEntryBox)
-	case "mha1", "mha2", "mhm1", "mhm2":
-		s.MhXX = box.(*AudioSampleEntryBox)
-	case "enca":
-		s.Enca = box.(*AudioSampleEntryBox)
-	case "wvtt":
-		s.Wvtt = box.(*WvttBox)
-	case "stpp":
-		s.Stpp = box.(*StppBox)
-	case "evte":
-		s.Evte = box.(*EvteBox)
-	}
-	s.Children = append(s.Children, box)
-	s.SampleCount++
-}
+func (s *StsdBox) AddChild(box Box) { _ = "STUB: not implemented"; return }
 
 // GetSampleDescription - get one of multiple descriptions
 func (s *StsdBox) GetSampleDescription(index int) (Box, error) {
-	if index >= len(s.Children) {
-		return nil, fmt.Errorf("beyond limit of sample descriptors")
-	}
-	return s.Children[index], nil
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeStsd - box-specific decode
 func DecodeStsd(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	var versionAndFlags, sampleCount uint32
-	err := binary.Read(r, binary.BigEndian, &versionAndFlags)
-	if err != nil {
-		return nil, err
-	}
-	err = binary.Read(r, binary.BigEndian, &sampleCount)
-	if err != nil {
-		return nil, err
-	}
-	// Note higher startPos below since not simple container
-	children, err := DecodeContainerChildren(hdr, startPos+16, startPos+hdr.Size, r)
-	if err != nil {
-		return nil, err
-	}
-	if len(children) != int(sampleCount) {
-		return nil, fmt.Errorf("stsd sample count  mismatch")
-	}
-	stsd := &StsdBox{
-		Version:     byte(versionAndFlags >> 24),
-		Flags:       versionAndFlags & flagsMask,
-		SampleCount: 0,
-	}
-	for _, box := range children {
-		stsd.AddChild(box)
-	}
-	if stsd.SampleCount != sampleCount {
-		return nil, fmt.Errorf("stsd sample count mismatch")
-	}
-	return stsd, nil
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
+
+// Note higher startPos below since not simple container
 
 // DecodeStsdSR - box-specific decode
 func DecodeStsdSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	versionAndFlags := sr.ReadUint32()
-	sampleCount := sr.ReadUint32()
-	// Note higher startPos below since not simple container
-	children, err := DecodeContainerChildrenSR(hdr, startPos+16, startPos+hdr.Size, sr)
-	if err != nil {
-		return nil, err
-	}
-	if len(children) != int(sampleCount) {
-		return nil, fmt.Errorf("stsd sample count  mismatch")
-	}
-	stsd := StsdBox{
-		Version:     byte(versionAndFlags >> 24),
-		Flags:       versionAndFlags & flagsMask,
-		SampleCount: 0, // set by  AddChild
-		Children:    make([]Box, 0, len(children)),
-	}
-	for _, box := range children {
-		stsd.AddChild(box)
-	}
-	if stsd.SampleCount != sampleCount {
-		return nil, fmt.Errorf("stsd sample count mismatch")
-	}
-	return &stsd, nil
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
+
+// Note higher startPos below since not simple container
+
+// set by  AddChild
 
 // Type - box-specific type
 func (s *StsdBox) Type() string {
-	return "stsd"
+	_ = "STUB: not implemented"
+
+	// Size - box-specific type
+	return ""
 }
 
-// Size - box-specific type
-func (s *StsdBox) Size() uint64 {
-	return containerSize(s.Children) + 8
-}
+func (s *StsdBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
 // Encode - box-specific encode of stsd - not a usual container
-func (s *StsdBox) Encode(w io.Writer) error {
-	err := EncodeHeader(s, w)
-	if err != nil {
-		return err
-	}
-	versionAndFlags := (uint32(s.Version) << 24) + s.Flags
-	err = binary.Write(w, binary.BigEndian, versionAndFlags)
-	if err != nil {
-		return err
-	}
-	err = binary.Write(w, binary.BigEndian, s.SampleCount)
-	if err != nil {
-		return err
-	}
-	for _, b := range s.Children {
-		err = b.Encode(w)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
+func (s *StsdBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // EncodeSW - box-specific encode of stsd - not a usual container
-func (s *StsdBox) EncodeSW(sw bits.SliceWriter) error {
-	err := EncodeHeaderSW(s, sw)
-	if err != nil {
-		return err
-	}
-	versionAndFlags := (uint32(s.Version) << 24) + s.Flags
-	sw.WriteUint32(versionAndFlags)
-	sw.WriteUint32(s.SampleCount)
-	for _, c := range s.Children {
-		err = c.EncodeSW(sw)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
+func (s *StsdBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // Info - write box-specific information
 func (s *StsdBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, s, int(s.Version), s.Flags)
-	if bd.err != nil {
-		return bd.err
-	}
-	var err error
-	for _, c := range s.Children {
-		err = c.Info(w, specificBoxLevels, indent+indentStep, indentStep)
-		if err != nil {
-			return err
-		}
-	}
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // GetBtrt returns the first BtrtBox found in StsdBox children.
-func (s *StsdBox) GetBtrt() *BtrtBox {
-	for _, c := range s.Children {
-		switch child := c.(type) {
-		case *VisualSampleEntryBox:
-			return child.Btrt
-		case *AudioSampleEntryBox:
-			return child.Btrt
-		case *WvttBox:
-			return child.Btrt
-		case *StppBox:
-			return child.Btrt
-		case *EvteBox:
-			return child.Btrt
-		}
-	}
-	return nil
-}
+func (s *StsdBox) GetBtrt() *BtrtBox { _ = "STUB: not implemented"; return nil }

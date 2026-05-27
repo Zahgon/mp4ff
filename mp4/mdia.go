@@ -20,76 +20,51 @@ type MdiaBox struct {
 
 // NewMdiaBox - Generate a new empty mdia box
 func NewMdiaBox() *MdiaBox {
-	return &MdiaBox{}
+	_ = "STUB: not implemented"
+
+	// AddChild - Add a child box
+	return nil
 }
 
-// AddChild - Add a child box
-func (m *MdiaBox) AddChild(box Box) {
-	switch box.Type() {
-	case "mdhd":
-		m.Mdhd = box.(*MdhdBox)
-	case "hdlr":
-		m.Hdlr = box.(*HdlrBox)
-	case "elng":
-		m.Elng = box.(*ElngBox)
-	case "minf":
-		m.Minf = box.(*MinfBox)
-	}
-	m.Children = append(m.Children, box)
-}
+func (m *MdiaBox) AddChild(box Box) { _ = "STUB: not implemented"; return }
 
 // DecodeMdia - box-specific decode
 func DecodeMdia(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	l, err := DecodeContainerChildren(hdr, startPos+8, startPos+hdr.Size, r)
-	if err != nil {
-		return nil, err
-	}
-	m := NewMdiaBox()
-	for _, b := range l {
-		m.AddChild(b)
-	}
-	return m, nil
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeMdiaSR - box-specific decode
 func DecodeMdiaSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	children, err := DecodeContainerChildrenSR(hdr, startPos+8, startPos+hdr.Size, sr)
-	if err != nil {
-		return nil, err
-	}
-	m := NewMdiaBox()
-	for _, c := range children {
-		m.AddChild(c)
-	}
-	return m, nil
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // Type - return box type
 func (m *MdiaBox) Type() string {
-	return "mdia"
+	_ = "STUB: not implemented"
+
+	// Size - return calculated size
+	return ""
 }
 
-// Size - return calculated size
-func (m *MdiaBox) Size() uint64 {
-	return containerSize(m.Children)
-}
+func (m *MdiaBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
 // GetChildren - list of child boxes
 func (m *MdiaBox) GetChildren() []Box {
-	return m.Children
+	_ = "STUB: not implemented"
+
+	// EncodeSW - write mdia container to w
+	return nil
 }
 
-// EncodeSW - write mdia container to w
-func (m *MdiaBox) Encode(w io.Writer) error {
-	return EncodeContainer(m, w)
-}
+func (m *MdiaBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // Encode - write mdia container via sw
-func (m *MdiaBox) EncodeSW(sw bits.SliceWriter) error {
-	return EncodeContainerSW(m, sw)
-}
+func (m *MdiaBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // Info - write box-specific information
 func (m *MdiaBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	return ContainerInfo(m, w, specificBoxLevels, indent, indentStep)
+	_ = "STUB: not implemented"
+	return nil
 }

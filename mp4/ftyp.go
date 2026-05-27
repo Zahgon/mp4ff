@@ -1,7 +1,6 @@
 package mp4
 
 import (
-	"encoding/binary"
 	"io"
 
 	"github.com/Eyevinn/mp4ff/bits"
@@ -13,113 +12,59 @@ type FtypBox struct {
 }
 
 // Copy - deep copy of Ftyp box.
-func (b *FtypBox) Copy() *FtypBox {
-	data := make([]byte, len(b.data))
-	copy(data, b.data)
-	return &FtypBox{data: data}
-}
+func (b *FtypBox) Copy() *FtypBox { _ = "STUB: not implemented"; return nil }
 
 // MajorBrand - major brand (4 chars)
-func (b *FtypBox) MajorBrand() string {
-	return string(b.data[:4])
-}
+func (b *FtypBox) MajorBrand() string { _ = "STUB: not implemented"; return "" }
 
 // MinorVersion - minor version
-func (b *FtypBox) MinorVersion() uint32 {
-	return binary.BigEndian.Uint32(b.data[4:8])
-}
+func (b *FtypBox) MinorVersion() uint32 { _ = "STUB: not implemented"; return 0 }
 
 // AddCompatibleBrands adds new compatible brands to Ftyp box.
-func (b *FtypBox) AddCompatibleBrands(compatibleBrands []string) {
-	for _, cb := range compatibleBrands {
-		b.data = append(b.data, []byte(cb)...)
-	}
-}
+func (b *FtypBox) AddCompatibleBrands(compatibleBrands []string) { _ = "STUB: not implemented"; return }
 
 // CompatibleBrands - slice of compatible brands (4 chars each)
-func (b *FtypBox) CompatibleBrands() []string {
-	nrCompatibleBrands := (len(b.data) - 8) / 4
-	if nrCompatibleBrands == 0 {
-		return nil
-	}
-	compatibleBrands := make([]string, nrCompatibleBrands)
-	for i := 0; i < nrCompatibleBrands; i++ {
-		pos := 8 + 4*i
-		compatibleBrands[i] = string(b.data[pos : pos+4])
-	}
-	return compatibleBrands
-}
+func (b *FtypBox) CompatibleBrands() []string { _ = "STUB: not implemented"; return nil }
 
 // CreateFtyp - Create an Ftyp box suitable for DASH/CMAF
-func CreateFtyp() *FtypBox {
-	return NewFtyp("cmfc", 0, []string{"dash", "iso6"})
-}
+func CreateFtyp() *FtypBox { _ = "STUB: not implemented"; return nil }
 
 // NewFtyp - new ftyp box with parameters
 func NewFtyp(majorBrand string, minorVersion uint32, compatibleBrands []string) *FtypBox {
-	data := make([]byte, 8+4*len(compatibleBrands))
-	copy(data, []byte(majorBrand))
-	binary.BigEndian.PutUint32(data[4:8], minorVersion)
-	for i, cb := range compatibleBrands {
-		pos := 8 + 4*i
-		copy(data[pos:pos+4], []byte(cb))
-	}
-	return &FtypBox{data: data}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // DecodeFtyp - box-specific decode
 func DecodeFtyp(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	data, err := readBoxBody(r, hdr)
-	if err != nil {
-		return nil, err
-	}
-	sr := bits.NewFixedSliceReader(data)
-	return DecodeFtypSR(hdr, startPos, sr)
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeFtypSR - box-specific decode
 func DecodeFtypSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	return &FtypBox{data: sr.ReadBytes(hdr.payloadLen())}, sr.AccError()
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // Type - return box type
 func (b *FtypBox) Type() string {
-	return "ftyp"
+	_ = "STUB: not implemented"
+
+	// Size - return calculated size
+	return ""
 }
 
-// Size - return calculated size
-func (b *FtypBox) Size() uint64 {
-	return uint64(boxHeaderSize + len(b.data))
-}
+func (b *FtypBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
 // Encode - write box to w
-func (b *FtypBox) Encode(w io.Writer) error {
-	sw := bits.NewFixedSliceWriter(int(b.Size()))
-	err := b.EncodeSW(sw)
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(sw.Bytes())
-	return err
-}
+func (b *FtypBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // EncodeSW - box-specific encode to slicewriter
-func (b *FtypBox) EncodeSW(sw bits.SliceWriter) error {
-	err := EncodeHeaderSW(b, sw)
-	if err != nil {
-		return err
-	}
-	sw.WriteBytes(b.data)
-	return sw.AccError()
-}
+func (b *FtypBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // Info - write specific box info to w
 func (b *FtypBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, b, -1, 0)
-	bd.write(" - majorBrand: %s", b.MajorBrand())
-	bd.write(" - minorVersion: %d", b.MinorVersion())
-	for _, cb := range b.CompatibleBrands() {
-		bd.write(" - compatibleBrand: %s", cb)
-	}
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }

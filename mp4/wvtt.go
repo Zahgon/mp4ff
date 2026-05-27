@@ -1,7 +1,6 @@
 package mp4
 
 import (
-	"fmt"
 	"io"
 
 	"github.com/Eyevinn/mp4ff/bits"
@@ -22,133 +21,56 @@ type WvttBox struct {
 }
 
 // NewWvttBox - Create new empty wvtt box
-func NewWvttBox() *WvttBox {
-	return &WvttBox{DataReferenceIndex: 1}
-}
+func NewWvttBox() *WvttBox { _ = "STUB: not implemented"; return nil }
 
 // AddChild - add a child box
-func (b *WvttBox) AddChild(child Box) {
-	switch box := child.(type) {
-	case *VttCBox:
-		b.VttC = box
-	case *VlabBox:
-		b.Vlab = box
-	case *BtrtBox:
-		b.Btrt = box
-	default:
-		// Other box
-	}
+func (b *WvttBox) AddChild(child Box) { _ = "STUB: not implemented"; return }
 
-	b.Children = append(b.Children, child)
-}
+// Other box
 
 const nrWvttBytesBeforeChildren = 16
 
 // DecodeWvtt - Decoder wvtt Sample Entry (wvtt)
 func DecodeWvtt(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	data, err := readBoxBody(r, hdr)
-	if err != nil {
-		return nil, err
-	}
-	sr := bits.NewFixedSliceReader(data)
-	return DecodeWvttSR(hdr, startPos, sr)
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeWvttSR - Decoder wvtt Sample Entry (wvtt)
 func DecodeWvttSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	w := WvttBox{}
+	_ = "STUB: not implemented"
+
 	// 14496-12 8.5.2.2 Sample entry (8 bytes)
-	sr.SkipBytes(6) // Skip 6 reserved bytes
-	w.DataReferenceIndex = sr.ReadUint16()
-	pos := startPos + nrWvttBytesBeforeChildren
-	endPos := startPos + uint64(hdr.Hdrlen+hdr.payloadLen())
-	for pos < endPos {
-		box, err := DecodeBoxSR(pos, sr)
-		if err != nil {
-			return nil, err
-		}
-		if box != nil {
-			w.AddChild(box)
-			pos += box.Size()
-		} else {
-			return nil, fmt.Errorf("no child of wvtt")
-		}
-	}
-	return &w, nil
+	return *new(Box), nil
 }
+
+// Skip 6 reserved bytes
 
 // Type - return box type
 func (b *WvttBox) Type() string {
-	return "wvtt"
+	_ = "STUB: not implemented"
+
+	// Size - return calculated size
+	return ""
 }
 
-// Size - return calculated size
-func (b *WvttBox) Size() uint64 {
-	totalSize := uint64(nrWvttBytesBeforeChildren)
-	for _, child := range b.Children {
-		totalSize += child.Size()
-	}
-	return totalSize
-}
+func (b *WvttBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
 // Encode - write box to w
-func (b *WvttBox) Encode(w io.Writer) error {
-	err := EncodeHeader(b, w)
-	if err != nil {
-		return err
-	}
-	buf := makebuf(b)
-	sw := bits.NewFixedSliceWriterFromSlice(buf)
-	sw.WriteZeroBytes(6)
-	sw.WriteUint16(b.DataReferenceIndex)
+func (b *WvttBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
-	_, err = w.Write(buf[:sw.Offset()]) // Only write written bytes
-	if err != nil {
-		return err
-	}
+// Only write written bytes
 
-	// Next output child boxes in order
-	for _, child := range b.Children {
-		err = child.Encode(w)
-		if err != nil {
-			return err
-		}
-	}
-	return err
-}
+// Next output child boxes in order
 
 // EncodeSW - write box to w
-func (b *WvttBox) EncodeSW(sw bits.SliceWriter) error {
-	err := EncodeHeaderSW(b, sw)
-	if err != nil {
-		return err
-	}
-	sw.WriteZeroBytes(6)
-	sw.WriteUint16(b.DataReferenceIndex)
+func (b *WvttBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
-	// Next output child boxes in order
-	for _, child := range b.Children {
-		err = child.EncodeSW(sw)
-		if err != nil {
-			return err
-		}
-	}
-	return err
-}
+// Next output child boxes in order
 
 // Info - write box-specific information
 func (b *WvttBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, b, -1, 0)
-	if bd.err != nil {
-		return bd.err
-	}
-	var err error
-	for _, child := range b.Children {
-		err = child.Info(w, specificBoxLevels, indent+indentStep, indent)
-		if err != nil {
-			return err
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
@@ -161,55 +83,36 @@ type VttCBox struct {
 
 // DecodeVttC - box-specific decode
 func DecodeVttC(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	data, err := readBoxBody(r, hdr)
-	if err != nil {
-		return nil, err
-	}
-	sr := bits.NewFixedSliceReader(data)
-	return DecodeVttCSR(hdr, startPos, sr)
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeVttCSR - box-specific decode
 func DecodeVttCSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	return &VttCBox{Config: sr.ReadFixedLengthString(hdr.payloadLen())}, sr.AccError()
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // Type - box-specific type
 func (b *VttCBox) Type() string {
-	return "vttC"
+	_ = "STUB: not implemented"
+
+	// Size - calculated size of box
+	return ""
 }
 
-// Size - calculated size of box
-func (b *VttCBox) Size() uint64 {
-	return uint64(boxHeaderSize + len(b.Config))
-}
+func (b *VttCBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
 // Encode - write box to w
-func (b *VttCBox) Encode(w io.Writer) error {
-	sw := bits.NewFixedSliceWriter(int(b.Size()))
-	err := b.EncodeSW(sw)
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(sw.Bytes())
-	return err
-}
+func (b *VttCBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // EncodeSW - box-specific encode to slicewriter
-func (b *VttCBox) EncodeSW(sw bits.SliceWriter) error {
-	err := EncodeHeaderSW(b, sw)
-	if err != nil {
-		return err
-	}
-	sw.WriteString(b.Config, false)
-	return sw.AccError()
-}
+func (b *VttCBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // Info - write box-specific information
 func (b *VttCBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, b, -1, 0)
-	bd.write(" - config: %q", b.Config)
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 ////////////////////////////// vlab //////////////////////////////
@@ -221,55 +124,36 @@ type VlabBox struct {
 
 // DecodeVlab - box-specific decode
 func DecodeVlab(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	data, err := readBoxBody(r, hdr)
-	if err != nil {
-		return nil, err
-	}
-	sr := bits.NewFixedSliceReader(data)
-	return DecodeVlabSR(hdr, startPos, sr)
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeVlabSR - box-specific decode
 func DecodeVlabSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	return &VlabBox{SourceLabel: sr.ReadFixedLengthString(hdr.payloadLen())}, sr.AccError()
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // Type - box-specific type
 func (b *VlabBox) Type() string {
-	return "vlab"
+	_ = "STUB: not implemented"
+
+	// Size - calculated size of box
+	return ""
 }
 
-// Size - calculated size of box
-func (b *VlabBox) Size() uint64 {
-	return uint64(boxHeaderSize + len(b.SourceLabel))
-}
+func (b *VlabBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
 // Encode - write box to w
-func (b *VlabBox) Encode(w io.Writer) error {
-	sw := bits.NewFixedSliceWriter(int(b.Size()))
-	err := b.EncodeSW(sw)
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(sw.Bytes())
-	return err
-}
+func (b *VlabBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // EncodeSW - box-specific encode to slicewriter
-func (b *VlabBox) EncodeSW(sw bits.SliceWriter) error {
-	err := EncodeHeaderSW(b, sw)
-	if err != nil {
-		return err
-	}
-	sw.WriteString(b.SourceLabel, false)
-	return sw.AccError()
-}
+func (b *VlabBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // Info - write box-specific information
 func (b *VlabBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, b, -1, 0)
-	bd.write(" - sourceLabel: %s", b.SourceLabel)
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // wvtt Sample boxes
@@ -283,38 +167,40 @@ type VtteBox struct {
 
 // Type - box-specific type
 func (b *VtteBox) Type() string {
-	return "vtte"
+	_ = "STUB: not implemented"
+
+	// DecodeVtte - box-specific decode
+	return ""
 }
 
-// DecodeVtte - box-specific decode
 func DecodeVtte(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	return &VtteBox{}, nil
+	_ = "STUB: not implemented"
+	return *
+
+	// DecodeVtteSR - box-specific decode
+	new(Box), nil
 }
 
-// DecodeVtteSR - box-specific decode
 func DecodeVtteSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	return &VtteBox{}, nil
+	_ = "STUB: not implemented"
+	return *
+
+	// Size - calculated size of box
+	new(Box), nil
 }
 
-// Size - calculated size of box
-func (b *VtteBox) Size() uint64 {
-	return uint64(boxHeaderSize)
-}
+func (b *VtteBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
 // Encode - write box to w
-func (b *VtteBox) Encode(w io.Writer) error {
-	return EncodeHeader(b, w)
-}
+func (b *VtteBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // EncodeSW - box-specific encode to slicewriter
-func (b *VtteBox) EncodeSW(sw bits.SliceWriter) error {
-	return EncodeHeaderSW(b, sw)
-}
+func (b *VtteBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // Info - write box-specific information
 func (b *VtteBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, b, -1, 0)
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 ////////////////////////////// vttc //////////////////////////////
@@ -330,79 +216,49 @@ type VttcBox struct {
 }
 
 // AddChild - Add a child box
-func (b *VttcBox) AddChild(child Box) {
+func (b *VttcBox) AddChild(child Box) { _ = "STUB: not implemented"; return }
 
-	switch box := child.(type) {
-	case *VsidBox:
-		b.Vsid = box
-	case *IdenBox:
-		b.Iden = box
-	case *CtimBox:
-		b.Ctim = box
-	case *SttgBox:
-		b.Sttg = box
-	case *PaylBox:
-		b.Payl = box
-	default:
-		// Type outside ISO/IEC 14496-30 spec
-	}
-	b.Children = append(b.Children, child)
-}
+// Type outside ISO/IEC 14496-30 spec
 
 // DecodeVttc - box-specific decode
 func DecodeVttc(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	children, err := DecodeContainerChildren(hdr, startPos+8, startPos+hdr.Size, r)
-	if err != nil {
-		return nil, err
-	}
-	b := VttcBox{}
-	for _, child := range children {
-		b.AddChild(child)
-	}
-	return &b, nil
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeVttcSR - box-specific decode
 func DecodeVttcSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	children, err := DecodeContainerChildrenSR(hdr, startPos+8, startPos+hdr.Size, sr)
-	if err != nil {
-		return nil, err
-	}
-	b := VttcBox{Children: make([]Box, 0, len(children))}
-	for _, c := range children {
-		b.AddChild(c)
-	}
-	return &b, nil
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // Type - return box type
 func (b *VttcBox) Type() string {
-	return "vttc"
+	_ = "STUB: not implemented"
+
+	// Size - return calculated size
+	return ""
 }
 
-// Size - return calculated size
-func (b *VttcBox) Size() uint64 {
-	return containerSize(b.Children)
-}
+func (b *VttcBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
 // GetChildren - list of child boxes
 func (b *VttcBox) GetChildren() []Box {
-	return b.Children
+	_ = "STUB: not implemented"
+
+	// Encode - write mvex container to w
+	return nil
 }
 
-// Encode - write mvex container to w
-func (b *VttcBox) Encode(w io.Writer) error {
-	return EncodeContainer(b, w)
-}
+func (b *VttcBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // Encode - write vttc container to sw
-func (b *VttcBox) EncodeSW(sw bits.SliceWriter) error {
-	return EncodeContainerSW(b, sw)
-}
+func (b *VttcBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // Info - write box-specific information
 func (b *VttcBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	return ContainerInfo(b, w, specificBoxLevels, indent, indentStep)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 ////////////////////////////// vsid //////////////////////////////
@@ -414,55 +270,38 @@ type VsidBox struct {
 
 // DecodeVsid - box-specific decode
 func DecodeVsid(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	data, err := readBoxBody(r, hdr)
-	if err != nil {
-		return nil, err
-	}
-	sr := bits.NewFixedSliceReader(data)
-	return DecodeVsidSR(hdr, startPos, sr)
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeVsidSR - box-specific decode
 func DecodeVsidSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	return &VsidBox{SourceID: sr.ReadUint32()}, sr.AccError()
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // Type - box-specific type
 func (b *VsidBox) Type() string {
-	return "vsid"
+	_ = "STUB: not implemented"
+
+	// Size - calculated size of box
+	return ""
 }
 
-// Size - calculated size of box
-func (b *VsidBox) Size() uint64 {
-	return uint64(boxHeaderSize + 4) // len of uint32
-}
+func (b *VsidBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
+
+// len of uint32
 
 // Encode - write box to w
-func (b *VsidBox) Encode(w io.Writer) error {
-	sw := bits.NewFixedSliceWriter(int(b.Size()))
-	err := b.EncodeSW(sw)
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(sw.Bytes())
-	return err
-}
+func (b *VsidBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // EncodeSW - box-specific encode to slicewriter
-func (b *VsidBox) EncodeSW(sw bits.SliceWriter) error {
-	err := EncodeHeaderSW(b, sw)
-	if err != nil {
-		return err
-	}
-	sw.WriteUint32(b.SourceID)
-	return sw.AccError()
-}
+func (b *VsidBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // Info - write box-specific information
 func (b *VsidBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, b, -1, 0)
-	bd.write(" - sourceID: %d", b.SourceID)
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 ////////////////////////////// ctim //////////////////////////////
@@ -475,55 +314,36 @@ type CtimBox struct {
 
 // DecodeCtim - box-specific decode
 func DecodeCtim(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	data, err := readBoxBody(r, hdr)
-	if err != nil {
-		return nil, err
-	}
-	sr := bits.NewFixedSliceReader(data)
-	return DecodeCtimSR(hdr, startPos, sr)
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeCtimSR - box-specific decode
 func DecodeCtimSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	return &CtimBox{CueCurrentTime: sr.ReadFixedLengthString(hdr.payloadLen())}, sr.AccError()
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // Type - box-specific type
 func (b *CtimBox) Type() string {
-	return "ctim"
+	_ = "STUB: not implemented"
+
+	// Size - calculated size of box
+	return ""
 }
 
-// Size - calculated size of box
-func (b *CtimBox) Size() uint64 {
-	return uint64(boxHeaderSize + len(b.CueCurrentTime))
-}
+func (b *CtimBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
 // Encode - write box to w
-func (b *CtimBox) Encode(w io.Writer) error {
-	sw := bits.NewFixedSliceWriter(int(b.Size()))
-	err := b.EncodeSW(sw)
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(sw.Bytes())
-	return err
-}
+func (b *CtimBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // EncodeSW - box-specific encode to slicewriter
-func (b *CtimBox) EncodeSW(sw bits.SliceWriter) error {
-	err := EncodeHeaderSW(b, sw)
-	if err != nil {
-		return err
-	}
-	sw.WriteString(b.CueCurrentTime, false)
-	return sw.AccError()
-}
+func (b *CtimBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // Info - write box-specific information
 func (b *CtimBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, b, -1, 0)
-	bd.write(" - cueCurrentTime: %s", b.CueCurrentTime)
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 ////////////////////////////// iden //////////////////////////////
@@ -535,55 +355,36 @@ type IdenBox struct {
 
 // DecodeIden - box-specific decode
 func DecodeIden(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	data, err := readBoxBody(r, hdr)
-	if err != nil {
-		return nil, err
-	}
-	sr := bits.NewFixedSliceReader(data)
-	return DecodeIdenSR(hdr, startPos, sr)
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeIdenSR - box-specific decode
 func DecodeIdenSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	return &IdenBox{CueID: sr.ReadFixedLengthString(hdr.payloadLen())}, sr.AccError()
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // Type - box-specific type
 func (b *IdenBox) Type() string {
-	return "iden"
+	_ = "STUB: not implemented"
+
+	// Size - calculated size of box
+	return ""
 }
 
-// Size - calculated size of box
-func (b *IdenBox) Size() uint64 {
-	return uint64(boxHeaderSize + len(b.CueID))
-}
+func (b *IdenBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
 // Encode - write box to w
-func (b *IdenBox) Encode(w io.Writer) error {
-	sw := bits.NewFixedSliceWriter(int(b.Size()))
-	err := b.EncodeSW(sw)
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(sw.Bytes())
-	return err
-}
+func (b *IdenBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // EncodeSW - box-specific encode to slicewriter
-func (b *IdenBox) EncodeSW(sw bits.SliceWriter) error {
-	err := EncodeHeaderSW(b, sw)
-	if err != nil {
-		return err
-	}
-	sw.WriteString(b.CueID, false)
-	return sw.AccError()
-}
+func (b *IdenBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // Info - write box-specific information
 func (b *IdenBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, b, -1, 0)
-	bd.write(" - cueID: %s", b.CueID)
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 ////////////////////////////// sttg //////////////////////////////
@@ -595,55 +396,36 @@ type SttgBox struct {
 
 // DecodeSttg - box-specific decode
 func DecodeSttg(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	data, err := readBoxBody(r, hdr)
-	if err != nil {
-		return nil, err
-	}
-	sr := bits.NewFixedSliceReader(data)
-	return DecodeSttgSR(hdr, startPos, sr)
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeSttgSR - box-specific decode
 func DecodeSttgSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	return &SttgBox{Settings: sr.ReadFixedLengthString(hdr.payloadLen())}, sr.AccError()
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // Type - box-specific type
 func (b *SttgBox) Type() string {
-	return "sttg"
+	_ = "STUB: not implemented"
+
+	// Size - calculated size of box
+	return ""
 }
 
-// Size - calculated size of box
-func (b *SttgBox) Size() uint64 {
-	return uint64(boxHeaderSize + len(b.Settings))
-}
+func (b *SttgBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
 // Encode - write box to w
-func (b *SttgBox) Encode(w io.Writer) error {
-	sw := bits.NewFixedSliceWriter(int(b.Size()))
-	err := b.EncodeSW(sw)
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(sw.Bytes())
-	return err
-}
+func (b *SttgBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // EncodeSW - box-specific encode to slicewriter
-func (b *SttgBox) EncodeSW(sw bits.SliceWriter) error {
-	err := EncodeHeaderSW(b, sw)
-	if err != nil {
-		return err
-	}
-	sw.WriteString(b.Settings, false)
-	return sw.AccError()
-}
+func (b *SttgBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // Info - write box-specific information
 func (b *SttgBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, b, -1, 0)
-	bd.write(" - settings: %s", b.Settings)
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 ////////////////////////////// payl //////////////////////////////
@@ -655,55 +437,36 @@ type PaylBox struct {
 
 // DecodePayl - box-specific decode
 func DecodePayl(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	data, err := readBoxBody(r, hdr)
-	if err != nil {
-		return nil, err
-	}
-	sr := bits.NewFixedSliceReader(data)
-	return DecodePaylSR(hdr, startPos, sr)
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodePaylSR - box-specific decode
 func DecodePaylSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	return &PaylBox{CueText: sr.ReadFixedLengthString(hdr.payloadLen())}, sr.AccError()
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // Type - box-specific type
 func (b *PaylBox) Type() string {
-	return "payl"
+	_ = "STUB: not implemented"
+
+	// Size - calculated size of box
+	return ""
 }
 
-// Size - calculated size of box
-func (b *PaylBox) Size() uint64 {
-	return uint64(boxHeaderSize + len(b.CueText))
-}
+func (b *PaylBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
 // Encode - write box to w
-func (b *PaylBox) Encode(w io.Writer) error {
-	sw := bits.NewFixedSliceWriter(int(b.Size()))
-	err := b.EncodeSW(sw)
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(sw.Bytes())
-	return err
-}
+func (b *PaylBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // EncodeSW - box-specific encode to slicewriter
-func (b *PaylBox) EncodeSW(sw bits.SliceWriter) error {
-	err := EncodeHeaderSW(b, sw)
-	if err != nil {
-		return err
-	}
-	sw.WriteString(b.CueText, false)
-	return sw.AccError()
-}
+func (b *PaylBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // Info - write box-specific information
 func (b *PaylBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, b, -1, 0)
-	bd.write(" - cueText: %q", b.CueText)
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 ////////////////////////////// vtta //////////////////////////////
@@ -715,53 +478,34 @@ type VttaBox struct {
 
 // DecodeVtta - box-specific decode
 func DecodeVtta(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	data, err := readBoxBody(r, hdr)
-	if err != nil {
-		return nil, err
-	}
-	sr := bits.NewFixedSliceReader(data)
-	return DecodeVttaSR(hdr, startPos, sr)
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeVttaSR - box-specific decode
 func DecodeVttaSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	return &VttaBox{CueAdditionalText: sr.ReadFixedLengthString(hdr.payloadLen())}, sr.AccError()
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // Type - box-specific type
 func (b *VttaBox) Type() string {
-	return "vtta"
+	_ = "STUB: not implemented"
+
+	// Size - calculated size of box
+	return ""
 }
 
-// Size - calculated size of box
-func (b *VttaBox) Size() uint64 {
-	return uint64(boxHeaderSize + len(b.CueAdditionalText))
-}
+func (b *VttaBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
 // Encode - write box to w
-func (b *VttaBox) Encode(w io.Writer) error {
-	sw := bits.NewFixedSliceWriter(int(b.Size()))
-	err := b.EncodeSW(sw)
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(sw.Bytes())
-	return err
-}
+func (b *VttaBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // EncodeSW - box-specific encode to slicewriter
-func (b *VttaBox) EncodeSW(sw bits.SliceWriter) error {
-	err := EncodeHeaderSW(b, sw)
-	if err != nil {
-		return err
-	}
-	sw.WriteString(b.CueAdditionalText, false)
-	return sw.AccError()
-}
+func (b *VttaBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // Info - write box-specific information
 func (b *VttaBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, b, -1, 0)
-	bd.write(" - cueAdditionalText: %q", b.CueAdditionalText)
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }

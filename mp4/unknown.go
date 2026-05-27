@@ -1,7 +1,6 @@
 package mp4
 
 import (
-	"encoding/hex"
 	"io"
 
 	"github.com/Eyevinn/mp4ff/bits"
@@ -16,69 +15,48 @@ type UnknownBox struct {
 
 // DecodeUnknown - decode an unknown box
 func DecodeUnknown(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	data, err := readBoxBody(r, hdr)
-	if err != nil {
-		return nil, err
-	}
-	sr := bits.NewFixedSliceReader(data)
-	return DecodeUnknownSR(hdr, startPos, sr)
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // CreateUnknownBox creates an unknown box. Set the size to match
 // the payload size + header size to get a well-formed box.
 func CreateUnknownBox(name string, size uint64, payload []byte) *UnknownBox {
-	return &UnknownBox{name, size, payload}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // DecodeUnknownSR - decode an unknown box
 func DecodeUnknownSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	return &UnknownBox{hdr.Name, hdr.Size, sr.ReadBytes(hdr.payloadLen())}, sr.AccError()
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // Type - return box type
 func (b *UnknownBox) Type() string {
-	return b.name
+	_ = "STUB: not implemented"
+
+	// Size - return calculated size
+	return ""
 }
 
-// Size - return calculated size
 func (b *UnknownBox) Size() uint64 {
-	return b.size
+	_ = "STUB: not implemented"
+
+	// Payload returns the (non-decoded) payload.
+	return 0
 }
 
-// Payload returns the (non-decoded) payload.
-func (b *UnknownBox) Payload() []byte {
-	return b.notDecoded
-}
+func (b *UnknownBox) Payload() []byte { _ = "STUB: not implemented"; return nil }
 
 // Encode - write box to w
-func (b *UnknownBox) Encode(w io.Writer) error {
-	sw := bits.NewFixedSliceWriter(int(b.Size()))
-	err := b.EncodeSW(sw)
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(sw.Bytes())
-	return err
-}
+func (b *UnknownBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // EncodeSW - box-specific encode to slicewriter
-func (b *UnknownBox) EncodeSW(sw bits.SliceWriter) error {
-	err := EncodeHeaderSW(b, sw)
-	if err != nil {
-		return err
-	}
-	sw.WriteBytes(b.notDecoded)
-	return sw.AccError()
-}
+func (b *UnknownBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // Info - write box-specific information
 func (b *UnknownBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, b, -1, 0)
-	bd.write(" - not implemented or unknown box")
-	level := getInfoLevel(b, specificBoxLevels)
-	if level > 0 {
-		bd.write(" - %s", hex.EncodeToString(b.notDecoded))
-	}
-
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }

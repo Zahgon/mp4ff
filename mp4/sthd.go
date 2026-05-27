@@ -14,58 +14,36 @@ type SthdBox struct {
 
 // DecodeSthd - box-specific decode
 func DecodeSthd(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	data, err := readBoxBody(r, hdr)
-	if err != nil {
-		return nil, err
-	}
-	sr := bits.NewFixedSliceReader(data)
-	return DecodeSthdSR(hdr, startPos, sr)
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeSthdSR - box-specific decode
 func DecodeSthdSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	versionAndFlags := sr.ReadUint32()
-	sb := &SthdBox{
-		Version: byte(versionAndFlags >> 24),
-		Flags:   versionAndFlags & flagsMask,
-	}
-	return sb, sr.AccError()
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // Type - box-specific type
 func (b *SthdBox) Type() string {
-	return "sthd"
+	_ = "STUB: not implemented"
+
+	// Size - calculated size of box
+	return ""
 }
 
-// Size - calculated size of box
-func (b *SthdBox) Size() uint64 {
-	return boxHeaderSize + 4 // FullBox
-}
+func (b *SthdBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
+
+// FullBox
 
 // Encode - write box to w
-func (b *SthdBox) Encode(w io.Writer) error {
-	sw := bits.NewFixedSliceWriter(int(b.Size()))
-	err := b.EncodeSW(sw)
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(sw.Bytes())
-	return err
-}
+func (b *SthdBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // EncodeSW - box-specific encode to slicewriter
-func (b *SthdBox) EncodeSW(sw bits.SliceWriter) error {
-	err := EncodeHeaderSW(b, sw)
-	if err != nil {
-		return err
-	}
-	versionAndFlags := (uint32(b.Version) << 24) + b.Flags
-	sw.WriteUint32(versionAndFlags)
-	return sw.AccError()
-}
+func (b *SthdBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // Info - write box-specific information
 func (b *SthdBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, b, int(b.Version), b.Flags)
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }

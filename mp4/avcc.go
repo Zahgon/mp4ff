@@ -1,8 +1,6 @@
 package mp4
 
 import (
-	"encoding/hex"
-	"fmt"
 	"io"
 
 	"github.com/Eyevinn/mp4ff/avc"
@@ -17,77 +15,40 @@ type AvcCBox struct {
 
 // CreateAvcC - Create an avcC box based on SPS and PPS
 func CreateAvcC(spsNALUs [][]byte, ppsNALUs [][]byte, includePS bool) (*AvcCBox, error) {
-	avcDecConfRec, err := avc.CreateAVCDecConfRec(spsNALUs, ppsNALUs, includePS)
-	if err != nil {
-		return nil, fmt.Errorf("CreateAvcDecDecConfRec: %w", err)
-	}
-
-	return &AvcCBox{*avcDecConfRec}, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // DecodeAvcC - box-specific decode
 func DecodeAvcC(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	data, err := readBoxBody(r, hdr)
-	if err != nil {
-		return nil, err
-	}
-	avcDecConfRec, err := avc.DecodeAVCDecConfRec(data)
-	if err != nil {
-		return nil, err
-	}
-	return &AvcCBox{avcDecConfRec}, nil
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeAvcCSR - box-specific decode
 func DecodeAvcCSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	avcDecConfRec, err := avc.DecodeAVCDecConfRec(sr.ReadBytes(hdr.payloadLen()))
-	if err != nil {
-		return nil, err
-	}
-	return &AvcCBox{avcDecConfRec}, nil
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // Type - return box type
 func (a *AvcCBox) Type() string {
-	return "avcC"
+	_ = "STUB: not implemented"
+
+	// Size - return calculated size
+	return ""
 }
 
-// Size - return calculated size
-func (a *AvcCBox) Size() uint64 {
-	return uint64(boxHeaderSize + a.DecConfRec.Size())
-}
+func (a *AvcCBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
 // Encode - write box to w
-func (a *AvcCBox) Encode(w io.Writer) error {
-	sw := bits.NewFixedSliceWriter(int(a.Size()))
-	err := a.EncodeSW(sw)
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(sw.Bytes())
-	return err
-}
+func (a *AvcCBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // EncodeSW - box-specific encode to slicewriter
-func (a *AvcCBox) EncodeSW(sw bits.SliceWriter) error {
-	err := EncodeHeaderSW(a, sw)
-	if err != nil {
-		return err
-	}
-	return a.DecConfRec.EncodeSW(sw)
-}
+func (a *AvcCBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // Info - write box-specific information
 func (a *AvcCBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, a, -1, 0)
-	bd.write(" - AVCProfileIndication: %d", a.AVCProfileIndication)
-	bd.write(" - profileCompatibility: %02x", a.ProfileCompatibility)
-	bd.write(" - AVCLevelIndication: %d", a.AVCLevelIndication)
-	for _, sps := range a.SPSnalus {
-		bd.write(" - SPS: %s", hex.EncodeToString(sps))
-	}
-	for _, pps := range a.PPSnalus {
-		bd.write(" - PPS: %s", hex.EncodeToString(pps))
-	}
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }

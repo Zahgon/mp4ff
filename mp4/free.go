@@ -13,67 +13,44 @@ type FreeBox struct {
 }
 
 // NewFreeBox creates a new FreeBox with arbitrary data payload.
-func NewFreeBox(data []byte) *FreeBox {
-	return &FreeBox{Name: "free", notDecoded: data}
-}
+func NewFreeBox(data []byte) *FreeBox { _ = "STUB: not implemented"; return nil }
 
 // NewSkipBox creates a new SkipBox with arbitrary data payload.
-func NewSkipBox(data []byte) *FreeBox {
-	return &FreeBox{Name: "skip", notDecoded: data}
-}
+func NewSkipBox(data []byte) *FreeBox { _ = "STUB: not implemented"; return nil }
 
 // Payload returns the payload of the box (everything after the box header)
-func (b *FreeBox) Payload() []byte {
-	return b.notDecoded
-}
+func (b *FreeBox) Payload() []byte { _ = "STUB: not implemented"; return nil }
 
 // DecodeFree - box-specific decode
 func DecodeFree(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	data, err := readBoxBody(r, hdr)
-	if err != nil {
-		return nil, err
-	}
-	return &FreeBox{Name: hdr.Name, notDecoded: data}, nil
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeFreeSR - box-specific decode
 func DecodeFreeSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	return &FreeBox{Name: hdr.Name, notDecoded: sr.ReadBytes(hdr.payloadLen())}, sr.AccError()
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // Type - box type
 func (b *FreeBox) Type() string {
-	return b.Name
+	_ = "STUB: not implemented"
+
+	// Size - calculated size of box
+	return ""
 }
 
-// Size - calculated size of box
-func (b *FreeBox) Size() uint64 {
-	return uint64(boxHeaderSize + len(b.notDecoded))
-}
+func (b *FreeBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
 // Encode - write box to w
-func (b *FreeBox) Encode(w io.Writer) error {
-	sw := bits.NewFixedSliceWriter(int(b.Size()))
-	err := b.EncodeSW(sw)
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(sw.Bytes())
-	return err
-}
+func (b *FreeBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // EncodeSW - box-specific encode to slicewriter
-func (b *FreeBox) EncodeSW(sw bits.SliceWriter) error {
-	err := EncodeHeaderSW(b, sw)
-	if err != nil {
-		return err
-	}
-	sw.WriteBytes(b.notDecoded)
-	return sw.AccError()
-}
+func (b *FreeBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // Info - write box-specific information
 func (b *FreeBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, b, -1, 0)
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }

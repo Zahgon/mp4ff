@@ -58,125 +58,43 @@ type SidxRef struct {
 
 // DecodeSidx - box-specific decode
 func DecodeSidx(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	data, err := readBoxBody(r, hdr)
-	if err != nil {
-		return nil, err
-	}
-	sr := bits.NewFixedSliceReader(data)
-	return DecodeSidxSR(hdr, startPos, sr)
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeSidxSR - box-specific decode
 func DecodeSidxSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	versionAndFlags := sr.ReadUint32()
-	version := byte(versionAndFlags >> 24)
-
-	b := &SidxBox{
-		Version: version,
-		Flags:   versionAndFlags & flagsMask,
-	}
-	b.ReferenceID = sr.ReadUint32()
-	b.Timescale = sr.ReadUint32()
-	if version == 0 {
-		b.EarliestPresentationTime = uint64(sr.ReadUint32())
-		b.FirstOffset = uint64(sr.ReadUint32())
-	} else {
-		b.EarliestPresentationTime = sr.ReadUint64()
-		b.FirstOffset = sr.ReadUint64()
-	}
-	b.AnchorPoint = startPos + b.FirstOffset + hdr.Size
-	sr.SkipBytes(2)
-	refCount := sr.ReadUint16()
-	for i := 0; i < int(refCount); i++ {
-		ref := SidxRef{}
-		work := sr.ReadUint32()
-		ref.ReferenceType = uint8(work >> 31)
-		ref.ReferencedSize = work & 0x7fffffff
-		ref.SubSegmentDuration = sr.ReadUint32()
-		work = sr.ReadUint32()
-		ref.StartsWithSAP = uint8(work >> 31)
-		ref.SAPType = uint8((work >> 28) & 0x07)
-		ref.SAPDeltaTime = work & 0x0fffffff
-		b.SidxRefs = append(b.SidxRefs, ref)
-	}
-	return b, sr.AccError()
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // CreateSidx - Create a new TfdtBox with baseMediaDecodeTime
-func CreateSidx(baseMediaDecodeTime uint64) *SidxBox {
-	var version byte = 0
-	if baseMediaDecodeTime >= 4294967296 {
-		version = 1
-	}
-	return &SidxBox{
-		Version: version,
-		Flags:   0,
-	}
-}
+func CreateSidx(baseMediaDecodeTime uint64) *SidxBox { _ = "STUB: not implemented"; return nil }
 
 // Type - return box type
 func (b *SidxBox) Type() string {
-	return "sidx"
+	_ = "STUB: not implemented"
+
+	// Size - return calculated size
+	return ""
 }
 
-// Size - return calculated size
 func (b *SidxBox) Size() uint64 {
+	_ = "STUB: not implemented"
 	// Add up all fields depending on version
-	return uint64(boxHeaderSize + 4 + 20 + 8*int(b.Version) + len(b.SidxRefs)*12)
+	return 0
 }
 
 // Encode - write box to w
-func (b *SidxBox) Encode(w io.Writer) error {
-	sw := bits.NewFixedSliceWriter(int(b.Size()))
-	err := b.EncodeSW(sw)
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(sw.Bytes())
-	return err
-}
+func (b *SidxBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // EncodeSW - box-specific encode to slicewriter
-func (b *SidxBox) EncodeSW(sw bits.SliceWriter) error {
-	err := EncodeHeaderSW(b, sw)
-	if err != nil {
-		return err
-	}
-	versionAndFlags := (uint32(b.Version) << 24) + b.Flags
-	sw.WriteUint32(versionAndFlags)
-	sw.WriteUint32(b.ReferenceID)
-	sw.WriteUint32(b.Timescale)
-	if b.Version == 0 {
-		sw.WriteUint32(uint32(b.EarliestPresentationTime))
-		sw.WriteUint32(uint32(b.FirstOffset))
-	} else {
-		sw.WriteUint64(b.EarliestPresentationTime)
-		sw.WriteUint64(b.FirstOffset)
-	}
-	sw.WriteUint16(0) // Reserved
-	sw.WriteUint16(uint16(len(b.SidxRefs)))
-	for _, ref := range b.SidxRefs {
-		sw.WriteUint32(uint32(ref.ReferenceType)<<31 | ref.ReferencedSize)
-		sw.WriteUint32(ref.SubSegmentDuration)
-		sw.WriteUint32((uint32(ref.StartsWithSAP) << 31) | (uint32(ref.SAPType) << 28) |
-			ref.SAPDeltaTime)
-	}
-	return sw.AccError()
-}
+func (b *SidxBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
+
+// Reserved
 
 // Info - more info for level 1
 func (b *SidxBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, b, int(b.Version), b.Flags)
-	bd.write(" - referenceID: %d", b.ReferenceID)
-	bd.write(" - timeScale: %d", b.Timescale)
-	bd.write(" - earliestPresentationTime: %d", b.EarliestPresentationTime)
-	bd.write(" - firstOffset: %d", b.FirstOffset)
-	level := getInfoLevel(b, specificBoxLevels)
-	if level >= 1 {
-		for i, ref := range b.SidxRefs {
-			bd.write(" - reference[%d]: type=%d size=%d subSegmentDuration=%d startsWithSAP=%d SAPType=%d SAPDeltaTime=%d",
-				i+1, ref.ReferenceType, ref.ReferencedSize, ref.SubSegmentDuration, ref.StartsWithSAP, ref.SAPType, ref.SAPDeltaTime)
-		}
-	}
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }

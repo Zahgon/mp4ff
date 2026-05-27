@@ -1,8 +1,6 @@
 package mp4
 
 import (
-	"encoding/hex"
-	"fmt"
 	"io"
 
 	"github.com/Eyevinn/mp4ff/bits"
@@ -22,24 +20,7 @@ const (
 	SLConfigDescrTag      = 6
 )
 
-func TagType(tag byte) string {
-	switch tag {
-	case ObjectDescrTag:
-		return "tag=1 Object"
-	case InitialObjectDescrTag:
-		return "tag=2 InitialObject"
-	case ES_DescrTag:
-		return "tag=3 ES"
-	case DecoderConfigDescrTag:
-		return "tag=4 DecoderConfig"
-	case DecSpecificInfoTag:
-		return "tag=5 DecoderSpecificInfo"
-	case SLConfigDescrTag:
-		return "tag=6 SLConfig"
-	default:
-		return fmt.Sprintf("tag=%d Unknown", tag)
-	}
-}
+func TagType(tag byte) string { _ = "STUB: not implemented"; return "" }
 
 type Descriptor interface {
 	// Tag - descriptor tag. Fixed for each descriptor type
@@ -106,224 +87,36 @@ type ESDescriptor struct {
 }
 
 func DecodeDescriptor(sr bits.SliceReader, maxNrBytes int) (Descriptor, error) {
-	if maxNrBytes < 2 {
-		return nil, fmt.Errorf("descriptor size %d too small", maxNrBytes)
-	}
-	tag := sr.ReadUint8()
-	if sr.AccError() != nil {
-		return nil, sr.AccError()
-	}
-	switch tag {
-	case ES_DescrTag:
-		return nil, fmt.Errorf("use DecodeESDescriptor instead")
-	case DecoderConfigDescrTag:
-		return DecodeDecoderConfigDescriptor(tag, sr, maxNrBytes)
-	case DecSpecificInfoTag:
-		return DecodeDecSpecificInfoDescriptor(tag, sr, maxNrBytes)
-	case SLConfigDescrTag:
-		return DecodeSLConfigDescriptor(tag, sr, maxNrBytes)
-	default:
-		return DecodeRawDescriptor(tag, sr, maxNrBytes)
-	}
+	_ = "STUB: not implemented"
+	return *new(Descriptor), nil
 }
 
 func DecodeESDescriptor(sr bits.SliceReader, descSize uint32) (ESDescriptor, error) {
-	ed := ESDescriptor{}
-	tag := sr.ReadUint8()
-	if tag != ES_DescrTag {
-		return ed, fmt.Errorf("got tag %d instead of ESDescriptorTag %d", tag, ES_DescrTag)
-	}
-
-	sizeFieldSizeMinus1, size, err := readSizeSize(sr)
-	if err != nil {
-		return ed, err
-	}
-	ed.sizeFieldSizeMinus1 = sizeFieldSizeMinus1
-	dataStart := sr.GetPos()
-	ed.EsID = sr.ReadUint16()
-	ed.FlagsAndPriority = sr.ReadUint8()
-	streamDependenceFlag := ed.FlagsAndPriority >> 7
-	urlFlag := (ed.FlagsAndPriority >> 6) & 0x1
-	ocrStreamFlag := (ed.FlagsAndPriority >> 5) & 0x1
-	// streamPriority := ed.FlagsAndPriority & 0x1f
-
-	if streamDependenceFlag == 1 {
-		ed.DependsOnEsID = sr.ReadUint16()
-	}
-	if urlFlag == 1 {
-		urlLen := sr.ReadUint8()
-		ed.URLString = sr.ReadFixedLengthString(int(urlLen))
-	}
-	if ocrStreamFlag == 1 {
-		ed.OCResID = sr.ReadUint16()
-	}
-	currPos := sr.GetPos()
-	nrBytesLeft := int(size) - (currPos - dataStart)
-	desc, err := DecodeDescriptor(sr, nrBytesLeft)
-	if err != nil {
-		return ed, err
-	}
-	var ok bool
-	ed.DecConfigDescriptor, ok = desc.(*DecoderConfigDescriptor)
-	if !ok {
-		return ed, fmt.Errorf("expected DecoderConfigDescriptor")
-	}
-	currPos = sr.GetPos()
-	nrBytesLeft = int(size) - (currPos - dataStart)
-	desc, err = DecodeDescriptor(sr, nrBytesLeft)
-	if err != nil {
-		sr.SetPos(currPos)
-		ed.UnknownData = sr.ReadBytes(nrBytesLeft)
-		return ed, nil
-	}
-	ed.SLConfigDescriptor, ok = desc.(*SLConfigDescriptor)
-	if !ok {
-		ed.OtherDescriptors = append(ed.OtherDescriptors, desc)
-	}
-	for {
-		currPos = sr.GetPos()
-		nrBytesLeft := int(size) - (currPos - dataStart)
-		if nrBytesLeft == 0 {
-			break
-		}
-		if nrBytesLeft < 0 {
-			return ed, fmt.Errorf("read too far in ESDescriptor")
-		}
-		desc, err := DecodeDescriptor(sr, nrBytesLeft)
-		if err != nil {
-			sr.SetPos(currPos)
-			ed.UnknownData = sr.ReadBytes(nrBytesLeft)
-			return ed, nil
-		}
-		ed.OtherDescriptors = append(ed.OtherDescriptors, desc)
-	}
-	if size != ed.Size() {
-		return ed, fmt.Errorf("read size %d differs from calculated size %d", size, ed.Size())
-	}
-	return ed, sr.AccError()
+	_ = "STUB: not implemented"
+	return *new(ESDescriptor), nil
 }
 
-func (e *ESDescriptor) Tag() byte {
-	return ES_DescrTag
-}
+// streamPriority := ed.FlagsAndPriority & 0x1f
 
-func (e *ESDescriptor) Type() string {
-	return TagType(e.Tag())
-}
+func (e *ESDescriptor) Tag() byte { _ = "STUB: not implemented"; return 0 }
+
+func (e *ESDescriptor) Type() string { _ = "STUB: not implemented"; return "" }
 
 // Size is size of payload after tag and size field
-func (e *ESDescriptor) Size() uint64 {
-	var size uint64 = 2 + 1
-	streamDependenceFlag := e.FlagsAndPriority >> 7
-	urlFlag := (e.FlagsAndPriority >> 6) & 0x1
-	ocrStreamFlag := (e.FlagsAndPriority >> 5) & 0x1
-	if streamDependenceFlag == 1 {
-		size += 2
-	}
-	if urlFlag == 1 {
-		size += 1 + uint64(len(e.URLString))
-	}
-	if ocrStreamFlag == 1 {
-		size += 2
-	}
-	if e.DecConfigDescriptor != nil {
-		size += e.DecConfigDescriptor.SizeSize()
-	}
-	if e.SLConfigDescriptor != nil {
-		size += e.SLConfigDescriptor.SizeSize()
-	}
-	for _, od := range e.OtherDescriptors {
-		size += od.SizeSize()
-	}
-	size += uint64(len(e.UnknownData))
-	return size
-}
+func (e *ESDescriptor) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
 // SizeSize is size of size field.
-func (e *ESDescriptor) SizeSize() uint64 {
-	return 1 + uint64(e.sizeFieldSizeMinus1) + 1 + e.Size()
-}
+func (e *ESDescriptor) SizeSize() uint64 { _ = "STUB: not implemented"; return 0 }
 
-func (e *ESDescriptor) EncodeSW(sw bits.SliceWriter) error {
-	sw.WriteBits(uint(e.Tag()), 8)
-	writeDescriptorSize(sw, e.Size(), e.sizeFieldSizeMinus1)
-	sw.WriteUint16(e.EsID)
-	sw.WriteUint8(e.FlagsAndPriority)
-	streamDependenceFlag := e.FlagsAndPriority >> 7
-	urlFlag := (e.FlagsAndPriority >> 6) & 0x1
-	ocrStreamFlag := (e.FlagsAndPriority >> 5) & 0x1
-	// streamPriority := ed.FlagsAndPriority & 0x1f
-	if streamDependenceFlag == 1 {
-		sw.WriteUint16(e.DependsOnEsID)
-	}
-	if urlFlag == 1 {
-		sw.WriteUint8(byte(len(e.URLString)))
-		sw.WriteString(e.URLString, false /* no zero-termination */)
-	}
-	if ocrStreamFlag == 1 {
-		sw.WriteUint16(e.OCResID)
-	}
-	if e.DecConfigDescriptor == nil {
-		return fmt.Errorf("missing DecoderConfigDescriptor")
-	}
-	err := e.DecConfigDescriptor.EncodeSW(sw)
-	if err != nil {
-		return err
-	}
-	if e.SLConfigDescriptor != nil {
-		err = e.SLConfigDescriptor.EncodeSW(sw)
-		if err != nil {
-			return err
-		}
-	}
-	for _, od := range e.OtherDescriptors {
-		err = od.EncodeSW(sw)
-		if err != nil {
-			return err
-		}
-	}
-	if len(e.UnknownData) > 0 {
-		sw.WriteBytes(e.UnknownData)
-	}
-	return sw.AccError()
-}
+func (e *ESDescriptor) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
+
+// streamPriority := ed.FlagsAndPriority & 0x1f
+
+/* no zero-termination */
 
 func (e *ESDescriptor) Info(w io.Writer, specificLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, e, infoVersionDescriptor, 0)
-	level := getInfoLevel(e, specificLevels)
-	if level > 0 {
-		bd.write(" - EsID: %d", e.EsID)
-		bd.write(" - DependsOnEsID: %d", e.DependsOnEsID)
-		bd.write(" - OCResID: %d", e.OCResID)
-		bd.write(" - FlagsAndPriority: %d", e.FlagsAndPriority)
-		bd.write(" - URLString: %s", e.URLString)
-	}
-	if e.DecConfigDescriptor != nil {
-		err := e.DecConfigDescriptor.Info(w, specificLevels, indent+indentStep, indentStep)
-		if err != nil {
-			return err
-		}
-	} else {
-		bd.write(" - Missing DecoderConfigDescriptor")
-	}
-	if e.SLConfigDescriptor != nil {
-		err := e.SLConfigDescriptor.Info(w, specificLevels, indent+indentStep, indentStep)
-		if err != nil {
-			return err
-		}
-	} else {
-		bd.write(" - Missing SLConfigDescriptor")
-	}
-	for _, od := range e.OtherDescriptors {
-		err := od.Info(w, specificLevels, indent+indentStep, indentStep)
-		if err != nil {
-			return err
-		}
-	}
-	if len(e.UnknownData) > 0 {
-		bd.write(" - UnknownData (%dB): %s", len(e.UnknownData), hex.EncodeToString(e.UnknownData))
-	}
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // DecoderConfigDescriptor is defined in ISO/IEC 14496-1 Section 7.2.6.6.1
@@ -352,141 +145,33 @@ type DecoderConfigDescriptor struct {
 }
 
 func exceedsMaxNrBytes(sizeFieldSizeMinus1 byte, size uint64, maxNrBytes int) bool {
-	return 1+uint64(sizeFieldSizeMinus1)+1+size > uint64(maxNrBytes)
+	_ = "STUB: not implemented"
+	return false
 }
 
 func DecodeDecoderConfigDescriptor(tag byte, sr bits.SliceReader, maxNrBytes int) (Descriptor, error) {
-	dd := DecoderConfigDescriptor{}
-	if tag != DecoderConfigDescrTag {
-		return nil, fmt.Errorf("got tag %d instead of DecoderConfigDescrTag %d", tag, DecoderConfigDescrTag)
-	}
-	sizeFieldSizeMinus1, size, err := readSizeSize(sr)
-	if err != nil {
-		return nil, err
-	}
-	dd.sizeFieldSizeMinus1 = sizeFieldSizeMinus1
-	if exceedsMaxNrBytes(sizeFieldSizeMinus1, size, maxNrBytes) {
-		return nil, fmt.Errorf("DecoderConfigDescriptor size %d exceeds maxNrBytes %d", size, maxNrBytes)
-	}
-	dataStart := sr.GetPos()
-	dd.ObjectType = sr.ReadUint8()
-
-	streamTypeAndBufferSizeDB := sr.ReadUint32()
-	dd.StreamType = byte(streamTypeAndBufferSizeDB >> 24)
-	dd.BufferSizeDB = streamTypeAndBufferSizeDB & 0xffffff
-	dd.MaxBitrate = sr.ReadUint32()
-	dd.AvgBitrate = sr.ReadUint32()
-
-	currPos := sr.GetPos()
-	nrBytesLeft := int(size) - (currPos - dataStart)
-	if nrBytesLeft == 0 {
-		return &dd, nil
-	}
-	desc, err := DecodeDescriptor(sr, nrBytesLeft)
-	if err != nil {
-		return nil, fmt.Errorf("failed to decode descriptor: %w", err)
-	}
-	var ok bool
-	dd.DecSpecificInfo, ok = desc.(*DecSpecificInfoDescriptor)
-	if !ok { // The optional decoderSpeicificInfo is not present
-		dd.OtherDescriptors = append(dd.OtherDescriptors, desc)
-	}
-	for {
-		currPos := sr.GetPos()
-		nrBytesLeft := int(size) - (currPos - dataStart)
-		if nrBytesLeft == 0 {
-			break
-		}
-		if nrBytesLeft < 0 {
-			return nil, fmt.Errorf("read too far in DecoderConfigDescriptor")
-		}
-		desc, err := DecodeDescriptor(sr, nrBytesLeft)
-		if err != nil {
-			sr.SetPos(currPos)
-			dd.UnknownData = sr.ReadBytes(nrBytesLeft)
-			return &dd, nil
-		}
-		dd.OtherDescriptors = append(dd.OtherDescriptors, desc)
-	}
-	return &dd, nil
+	_ = "STUB: not implemented"
+	return *new(Descriptor), nil
 }
 
-func (d *DecoderConfigDescriptor) Tag() byte {
-	return DecoderConfigDescrTag
-}
+// The optional decoderSpeicificInfo is not present
 
-func (d *DecoderConfigDescriptor) Type() string {
-	return TagType(d.Tag())
-}
+func (d *DecoderConfigDescriptor) Tag() byte { _ = "STUB: not implemented"; return 0 }
 
-func (d *DecoderConfigDescriptor) Size() uint64 {
-	size := uint64(13)
-	if d.DecSpecificInfo != nil {
-		size += d.DecSpecificInfo.SizeSize()
-	}
-	for _, od := range d.OtherDescriptors {
-		size += od.SizeSize()
-	}
-	size += uint64(len(d.UnknownData))
-	return uint64(size)
-}
+func (d *DecoderConfigDescriptor) Type() string { _ = "STUB: not implemented"; return "" }
 
-func (d *DecoderConfigDescriptor) SizeSize() uint64 {
-	return 1 + uint64(d.sizeFieldSizeMinus1) + 1 + d.Size()
-}
+func (d *DecoderConfigDescriptor) Size() uint64 { _ = "STUB: not implemented"; return 0 }
+
+func (d *DecoderConfigDescriptor) SizeSize() uint64 { _ = "STUB: not implemented"; return 0 }
 
 func (d *DecoderConfigDescriptor) EncodeSW(sw bits.SliceWriter) error {
-	sw.WriteBits(uint(d.Tag()), 8)
-	writeDescriptorSize(sw, d.Size(), d.sizeFieldSizeMinus1)
-	sw.WriteUint8(d.ObjectType)
-	streamTypeAndBufferSizeDB := (uint32(d.StreamType) << 24) | d.BufferSizeDB
-	sw.WriteUint32(streamTypeAndBufferSizeDB)
-	sw.WriteUint32(d.MaxBitrate)
-	sw.WriteUint32(d.AvgBitrate)
-	if d.DecSpecificInfo != nil {
-		err := d.DecSpecificInfo.EncodeSW(sw)
-		if err != nil {
-			return err
-		}
-	}
-	for _, desc := range d.OtherDescriptors {
-		err := desc.EncodeSW(sw)
-		if err != nil {
-			return err
-		}
-	}
-	if len(d.UnknownData) > 0 {
-		sw.WriteBytes(d.UnknownData)
-	}
-	return sw.AccError()
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (d *DecoderConfigDescriptor) Info(w io.Writer, specificLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, d, infoVersionDescriptor, 0)
-	level := getInfoLevel(d, specificLevels)
-	if level > 0 {
-		bd.write(" - ObjectType: %d", d.ObjectType)
-		bd.write(" - StreamType: %d", d.StreamType)
-	}
-	bd.write(" - BufferSizeDB: %d", d.BufferSizeDB)
-	bd.write(" - MaxBitrate: %d", d.MaxBitrate)
-	bd.write(" - AvgBitrate: %d", d.AvgBitrate)
-	if d.DecSpecificInfo != nil {
-		err := d.DecSpecificInfo.Info(w, specificLevels, indent+indentStep, indentStep)
-		if err != nil {
-			return err
-		}
-	}
-	for _, od := range d.OtherDescriptors {
-		err := od.Info(w, specificLevels, indent+indentStep, indentStep)
-		if err != nil {
-			return err
-		}
-	}
-	if len(d.UnknownData) > 0 {
-		bd.write(" - UnknownData (%dB): %s", len(d.UnknownData), hex.EncodeToString(d.UnknownData))
-	}
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // DecSpecificInfoDescriptor is a generic DecoderSpecificInfoDescriptor.
@@ -499,56 +184,26 @@ type DecSpecificInfoDescriptor struct {
 }
 
 func DecodeDecSpecificInfoDescriptor(tag byte, sr bits.SliceReader, maxNrBytes int) (Descriptor, error) {
-	dd := DecSpecificInfoDescriptor{}
-	if tag != DecSpecificInfoTag {
-		return nil, fmt.Errorf("got tag %d instead of DecSpecificInfoTag %d", tag, DecSpecificInfoTag)
-	}
-
-	sizeFieldSizeMinus1, size, err := readSizeSize(sr)
-	if err != nil {
-		return nil, err
-	}
-	if exceedsMaxNrBytes(sizeFieldSizeMinus1, size, maxNrBytes) {
-		return nil, fmt.Errorf("DecSpecificInfoDescriptor size %d exceeds maxNrBytes %d", size, maxNrBytes)
-	}
-	dd.sizeFieldSizeMinus1 = sizeFieldSizeMinus1
-
-	dataStart := sr.GetPos()
-	dd.DecConfig = sr.ReadBytes(int(size))
-	bytesLeft := int(size) - (sr.GetPos() - dataStart)
-	if bytesLeft > 0 {
-		return nil, fmt.Errorf("DecSpecificInfoDescriptor has %d bytes left", bytesLeft)
-	}
-	return &dd, sr.AccError()
+	_ = "STUB: not implemented"
+	return *new(Descriptor), nil
 }
 
-func (d *DecSpecificInfoDescriptor) Tag() byte {
-	return DecSpecificInfoTag
-}
+func (d *DecSpecificInfoDescriptor) Tag() byte { _ = "STUB: not implemented"; return 0 }
 
-func (d *DecSpecificInfoDescriptor) Type() string {
-	return TagType(d.Tag())
-}
+func (d *DecSpecificInfoDescriptor) Type() string { _ = "STUB: not implemented"; return "" }
 
-func (d *DecSpecificInfoDescriptor) Size() uint64 {
-	return uint64(len(d.DecConfig))
-}
+func (d *DecSpecificInfoDescriptor) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
-func (d *DecSpecificInfoDescriptor) SizeSize() uint64 {
-	return 1 + uint64(d.sizeFieldSizeMinus1) + 1 + d.Size()
-}
+func (d *DecSpecificInfoDescriptor) SizeSize() uint64 { _ = "STUB: not implemented"; return 0 }
 
 func (d *DecSpecificInfoDescriptor) EncodeSW(sw bits.SliceWriter) error {
-	sw.WriteBits(uint(d.Tag()), 8)
-	writeDescriptorSize(sw, d.Size(), d.sizeFieldSizeMinus1)
-	sw.WriteBytes(d.DecConfig)
-	return sw.AccError()
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (d *DecSpecificInfoDescriptor) Info(w io.Writer, specificLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, d, infoVersionDescriptor, 0)
-	bd.write(" - DecConfig (%dB): %s", len(d.DecConfig), hex.EncodeToString(d.DecConfig))
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 type SLConfigDescriptor struct {
@@ -558,62 +213,26 @@ type SLConfigDescriptor struct {
 }
 
 func DecodeSLConfigDescriptor(tag byte, sr bits.SliceReader, maxNrBytes int) (Descriptor, error) {
-	d := SLConfigDescriptor{}
-	if tag != SLConfigDescrTag {
-		return nil, fmt.Errorf("got tag %d instead of SLConfigDescrTag %d", tag, SLConfigDescrTag)
-	}
-	sizeFieldSizeMinus1, size, err := readSizeSize(sr)
-	if err != nil {
-		return nil, err
-	}
-	if exceedsMaxNrBytes(sizeFieldSizeMinus1, size, maxNrBytes) {
-		return nil, fmt.Errorf("DecodeSLConfigDescriptor size %d exceeds maxNrBytes %d", size, maxNrBytes)
-	}
-	d.sizeFieldSizeMinus1 = sizeFieldSizeMinus1
-
-	d.ConfigValue = sr.ReadUint8()
-	if size > 1 {
-		d.MoreData = sr.ReadBytes(int(size - 1))
-	}
-	return &d, sr.AccError()
+	_ = "STUB: not implemented"
+	return *new(Descriptor), nil
 }
 
-func (d *SLConfigDescriptor) Tag() byte {
-	return SLConfigDescrTag
-}
+func (d *SLConfigDescriptor) Tag() byte { _ = "STUB: not implemented"; return 0 }
 
-func (d *SLConfigDescriptor) Type() string {
-	return TagType(d.Tag())
-}
+func (d *SLConfigDescriptor) Type() string { _ = "STUB: not implemented"; return "" }
 
-func (d *SLConfigDescriptor) Size() uint64 {
-	return uint64(1 + len(d.MoreData))
-}
+func (d *SLConfigDescriptor) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
-func (d *SLConfigDescriptor) SizeSize() uint64 {
-	return 1 + uint64(d.sizeFieldSizeMinus1) + 1 + d.Size()
-}
+func (d *SLConfigDescriptor) SizeSize() uint64 { _ = "STUB: not implemented"; return 0 }
 
 func (d *SLConfigDescriptor) EncodeSW(sw bits.SliceWriter) error {
-	sw.WriteBits(uint(d.Tag()), 8)
-	writeDescriptorSize(sw, d.Size(), d.sizeFieldSizeMinus1)
-	sw.WriteUint8(d.ConfigValue)
-	if len(d.MoreData) > 0 {
-		sw.WriteBytes(d.MoreData)
-	}
-	return sw.AccError()
+	_ = "STUB: not implemented"
+	return nil
 }
 
 func (d *SLConfigDescriptor) Info(w io.Writer, specificLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, d, infoVersionDescriptor, 0)
-	level := getInfoLevel(d, specificLevels)
-	if level > 0 {
-		bd.write(" - ConfigValue: %d", d.ConfigValue)
-		if len(d.MoreData) > 0 {
-			bd.write(" - MoreData: (%dB) %s", len(d.MoreData), hex.EncodeToString(d.MoreData))
-		}
-	}
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // RawDescriptor - raw representation of any descriptor
@@ -624,98 +243,48 @@ type RawDescriptor struct {
 }
 
 func DecodeRawDescriptor(tag byte, sr bits.SliceReader, maxNrBytes int) (Descriptor, error) {
-	sizeFieldSizeMinus1, size, err := readSizeSize(sr)
-	if err != nil {
-		return nil, err
-	}
-	if exceedsMaxNrBytes(sizeFieldSizeMinus1, size, maxNrBytes) {
-		return nil, fmt.Errorf("DecRawDescriptor size %d exceeds maxNrBytes %d", size, maxNrBytes)
-	}
-	d := RawDescriptor{
-		tag:                 tag,
-		sizeFieldSizeMinus1: sizeFieldSizeMinus1,
-	}
-	d.data = sr.ReadBytes(int(size))
-	return &d, sr.AccError()
+	_ = "STUB: not implemented"
+	return *new(Descriptor), nil
 }
 
 func CreateRawDescriptor(tag, sizeFieldSizeMinus1 byte, data []byte) (RawDescriptor, error) {
-	return RawDescriptor{
-		tag:                 tag,
-		sizeFieldSizeMinus1: sizeFieldSizeMinus1,
-		data:                data}, nil
+	_ = "STUB: not implemented"
+	return *new(RawDescriptor), nil
 }
 
-func (s *RawDescriptor) Tag() byte {
-	return s.tag
-}
+func (s *RawDescriptor) Tag() byte { _ = "STUB: not implemented"; return 0 }
 
-func (d *RawDescriptor) Type() string {
-	return TagType(d.Tag())
-}
+func (d *RawDescriptor) Type() string { _ = "STUB: not implemented"; return "" }
 
-func (d *RawDescriptor) Size() uint64 {
-	return uint64(len(d.data))
-}
+func (d *RawDescriptor) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
-func (d *RawDescriptor) SizeSize() uint64 {
-	return 1 + uint64(d.sizeFieldSizeMinus1) + 1 + d.Size()
-}
+func (d *RawDescriptor) SizeSize() uint64 { _ = "STUB: not implemented"; return 0 }
 
-func (d *RawDescriptor) EncodeSW(sw bits.SliceWriter) error {
-	sw.WriteBits(uint(d.tag), 8)
-	writeDescriptorSize(sw, d.Size(), d.sizeFieldSizeMinus1)
-	sw.WriteBytes(d.data)
-	return sw.AccError()
-}
+func (d *RawDescriptor) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 func (d *RawDescriptor) Info(w io.Writer, specificLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, d, infoVersionDescriptor, 0)
-	level := getInfoLevel(d, specificLevels)
-	if level > 0 {
-		bd.write(" - data (%dB): %s", len(d.data), hex.EncodeToString(d.data))
-	}
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // CreateESDescriptor creates an ESDescriptor with a DecoderConfigDescriptor for audio.
 func CreateESDescriptor(decConfig []byte) ESDescriptor {
-	e := ESDescriptor{
-		EsID: 0x01,
-		DecConfigDescriptor: &DecoderConfigDescriptor{
-			ObjectType: 0x40, // Audio ISO/IEC 14496-3,
-			StreamType: 0x15, // 0x5 << 2 + 0x01 (audioType + upstreamFlag + reserved)
-			DecSpecificInfo: &DecSpecificInfoDescriptor{
-				DecConfig: decConfig,
-			},
-		},
-		SLConfigDescriptor: &SLConfigDescriptor{
-			ConfigValue: 0x02,
-		},
-	}
-	return e
+	_ = "STUB: not implemented"
+	return *new(ESDescriptor)
 }
+
+// Audio ISO/IEC 14496-3,
+// 0x5 << 2 + 0x01 (audioType + upstreamFlag + reserved)
 
 // readTagAndSize - get size by accumulate 7 bits from each byte. MSB = 1 indicates more bytes.
 // Defined in ISO 14496-1 Section 8.3.3
 func readSizeSize(sr bits.SliceReader) (sizeFieldSizeMinus1 byte, size uint64, err error) {
-	tmp := sr.ReadUint8()
-	sizeOfInstance := uint64(tmp & 0x7f)
-	for tmp&0x80 != 0 {
-		tmp = sr.ReadUint8()
-		sizeFieldSizeMinus1++
-		sizeOfInstance = sizeOfInstance<<7 | uint64(tmp&0x7f)
-	}
-	return sizeFieldSizeMinus1, sizeOfInstance, sr.AccError()
+	_ = "STUB: not implemented"
+	return 0, 0, nil
 }
 
 // writeDescriptorSize - write descriptor size 7-bit at a time in as many bytes as prescribed
 func writeDescriptorSize(sw bits.SliceWriter, size uint64, sizeFieldSizeMinus1 byte) {
-	for pos := int(sizeFieldSizeMinus1); pos >= 0; pos-- {
-		value := byte(size>>uint32(7*pos)) & 0x7f
-		if pos > 0 {
-			value |= 0x80
-		}
-		sw.WriteBits(uint(value), 8)
-	}
+	_ = "STUB: not implemented"
+	return
 }

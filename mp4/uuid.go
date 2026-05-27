@@ -1,12 +1,7 @@
 package mp4
 
 import (
-	"bytes"
-	"encoding/base64"
-	"encoding/hex"
-	"fmt"
 	"io"
-	"strings"
 
 	"github.com/Eyevinn/mp4ff/bits"
 )
@@ -14,23 +9,13 @@ import (
 // UUID - 16-byte KeyID or SystemID
 type UUID []byte
 
-func (u UUID) String() string {
-	if len(u) != 16 {
-		return fmt.Sprintf("bad uuid %q", hex.EncodeToString(u))
-	}
-	h := hex.EncodeToString(u[:])
-	return fmt.Sprintf("%s-%s-%s-%s-%s", h[0:8], h[8:12], h[12:16], h[16:20], h[20:32])
-}
+func (u UUID) String() string { _ = "STUB: not implemented"; return "" }
 
 // Equal compares with other UUID
-func (u UUID) Equal(a UUID) bool {
-	return bytes.Equal(u, a)
-}
+func (u UUID) Equal(a UUID) bool { _ = "STUB: not implemented"; return false }
 
 // NewUUIDFromString creates a UUID from a hexadecimal, uuid-string or base64 string
-func NewUUIDFromString(h string) (UUID, error) {
-	return createUUID(h)
-}
+func NewUUIDFromString(h string) (UUID, error) { _ = "STUB: not implemented"; return *new(UUID), nil }
 
 const (
 	// The following UUIDs belong to Microsoft Smooth Streaming Protocol (MSS)
@@ -61,46 +46,21 @@ const (
 // fragmentCount is the number of fragments, andb both
 // fragmentAbsoluteTimes and fragmentAbsoluteDurations must be slices of that length.
 func NewTfrfBox(fragmentCount byte, fragmentAbsoluteTimes, fragmentAbsoluteDurations []uint64) *UUIDBox {
-	return &UUIDBox{
-		uuid: mustCreateUUID(UUIDTfrf),
-		Tfrf: &TfrfData{
-			Version:                   0,
-			Flags:                     0,
-			FragmentCount:             fragmentCount,
-			FragmentAbsoluteTimes:     fragmentAbsoluteTimes,
-			FragmentAbsoluteDurations: fragmentAbsoluteDurations,
-		},
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // NewTfxdBox creates a new TfxdBox with values.
 func NewTfxdBox(fragmentAbsoluteTime, fragmentAbsoluteDuration uint64) *UUIDBox {
-	return &UUIDBox{
-		uuid: mustCreateUUID(UUIDTfxd),
-		Tfxd: &TfxdData{
-			FragmentAbsoluteTime:     fragmentAbsoluteTime,
-			FragmentAbsoluteDuration: fragmentAbsoluteDuration,
-		},
-	}
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // createUUID - create uuid from hex, uuid-formatted hex, or base64 string
-func createUUID(u string) (UUID, error) {
-	b, err := UnpackKey(u)
-	if err != nil {
-		return nil, err
-	}
-	return UUID(b), nil
-}
+func createUUID(u string) (UUID, error) { _ = "STUB: not implemented"; return *new(UUID), nil }
 
 // mustCreateUUID - create uuid from string. Panic for bad string
-func mustCreateUUID(u string) UUID {
-	b, err := createUUID(u)
-	if err != nil {
-		panic(err.Error())
-	}
-	return b
-}
+func mustCreateUUID(u string) UUID { _ = "STUB: not implemented"; return *new(UUID) }
 
 var (
 	uuidTfxd             UUID = mustCreateUUID(UUIDTfxd)
@@ -124,16 +84,11 @@ type UUIDBox struct {
 }
 
 // UUID - Return UUID as formatted string
-func (u *UUIDBox) UUID() string {
-	return u.uuid.String()
-}
+func (u *UUIDBox) UUID() string { _ = "STUB: not implemented"; return "" }
 
 // UUID - Set UUID from string corresponding to 16 bytes.
 // The input should be a UUID-formatted hex string, plain hex or baset64 encoded.
-func (u *UUIDBox) SetUUID(uuid string) (err error) {
-	u.uuid, err = createUUID(uuid)
-	return err
-}
+func (u *UUIDBox) SetUUID(uuid string) (err error) { _ = "STUB: not implemented"; return nil }
 
 // TfxdData - MSS TfxdBox data after UUID part
 // Defined in MSS-SSTR v20180912 section 2.2.4.4
@@ -178,342 +133,73 @@ type PiffTencData struct {
 	KID         UUID
 }
 
-func (p *PiffTencData) size() uint64 {
-	return 4 + 3 + 1 + 16
-}
+func (p *PiffTencData) size() uint64 { _ = "STUB: not implemented"; return 0 }
 
 func decodePiffTenc(s bits.SliceReader) (*PiffTencData, error) {
-	versionAndFlags := s.ReadUint32()
-	p := &PiffTencData{
-		Version: byte(versionAndFlags >> 24),
-		Flags:   versionAndFlags & flagsMask,
-	}
-	algoHi := uint32(s.ReadUint8())
-	algoLo := uint32(s.ReadUint16())
-	p.AlgorithmID = algoHi<<16 | algoLo
-	p.IVSize = s.ReadUint8()
-	p.KID = UUID(s.ReadBytes(16))
-	return p, s.AccError()
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
-func (p *PiffTencData) encode(sw bits.SliceWriter) error {
-	versionAndFlags := (uint32(p.Version) << 24) + p.Flags
-	sw.WriteUint32(versionAndFlags)
-	sw.WriteUint8(byte(p.AlgorithmID >> 16))
-	sw.WriteUint16(uint16(p.AlgorithmID & 0xffff))
-	sw.WriteUint8(p.IVSize)
-	sw.WriteBytes(p.KID)
-	return sw.AccError()
-}
+func (p *PiffTencData) encode(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // DecodeUUIDBox - decode a UUID box including tfxd or tfrf
 func DecodeUUIDBox(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	data, err := readBoxBody(r, hdr)
-	if err != nil {
-		return nil, err
-	}
-	sr := bits.NewFixedSliceReader(data)
-	return DecodeUUIDBoxSR(hdr, startPos, sr)
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeUUIDBoxSR - decode a UUID box including tfxd or tfrf
 func DecodeUUIDBoxSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	b := &UUIDBox{
-		StartPos: startPos,
-		uuid:     sr.ReadBytes(16),
-	}
-	switch b.UUID() {
-	case UUIDTfxd:
-		tfxd, err := decodeTfxd(sr)
-		if err != nil {
-			return nil, err
-		}
-		b.Tfxd = tfxd
-	case UUIDTfrf:
-		tfrf, err := decodeTfrf(sr)
-		if err != nil {
-			return nil, err
-		}
-		b.Tfrf = tfrf
-	case UUIDPiffSenc:
-		if hdr.Size < 16+8 {
-			return nil, fmt.Errorf("uuid box size too small: %d < %d", hdr.Size, 16+8)
-		}
-		// PIFF 1.1 §5.3.2: SampleEncryptionBox flag 0x1 ("Override TrackEncryptionBox
-		// parameters") prepends 24 bytes (AlgorithmID(24)+IV_size(8)+KID(128)) before
-		// sample_count, which the generic SencBox decoder doesn't expect. Reject
-		// explicitly to avoid silent misparse.
-		var head [4]byte
-		if err := sr.LookAhead(0, head[:]); err != nil {
-			return nil, fmt.Errorf("failed to peek piff senc flags: %w", err)
-		}
-		if head[3]&0x1 != 0 {
-			return nil, fmt.Errorf("piff senc override flag (0x1) not supported")
-		}
-		// This is like a SencBox except that there is no size and type. Offset and sizes must be slightly adjusted.
-		subHdr := BoxHeader{"senc", hdr.Size - 16, 8}
-		box, err := DecodeSencSR(subHdr, b.StartPos+16, sr)
-		if err != nil {
-			return nil, fmt.Errorf("failed to decode senc in UUID: %w", err)
-		}
-		b.Senc = box.(*SencBox)
-	case UUIDPiffTenc:
-		if hdr.Size < 8+16+24 {
-			return nil, fmt.Errorf("piff tenc uuid box size too small: %d < %d", hdr.Size, 8+16+24)
-		}
-		piffTenc, err := decodePiffTenc(sr)
-		if err != nil {
-			return nil, fmt.Errorf("failed to decode piff tenc in UUID: %w", err)
-		}
-		b.PiffTenc = piffTenc
-	case UUIDSphericalVideoV1:
-		if hdr.Size < 8+16 {
-			return nil, fmt.Errorf("uuid box size too small: %d < 24", hdr.Size)
-		}
-		xmlData := sr.ReadBytes(int(hdr.Size) - 8 - 16)
-		b.SphericalV1 = &SphericalVideoV1Data{XMLData: string(xmlData)}
-	default:
-		if hdr.Size < 8+16 {
-			return nil, fmt.Errorf("uuid box size too small: %d < 24", hdr.Size)
-		}
-		b.UnknownPayload = sr.ReadBytes(int(hdr.Size) - 8 - 16)
-	}
-
-	return b, sr.AccError()
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
+
+// PIFF 1.1 §5.3.2: SampleEncryptionBox flag 0x1 ("Override TrackEncryptionBox
+// parameters") prepends 24 bytes (AlgorithmID(24)+IV_size(8)+KID(128)) before
+// sample_count, which the generic SencBox decoder doesn't expect. Reject
+// explicitly to avoid silent misparse.
+
+// This is like a SencBox except that there is no size and type. Offset and sizes must be slightly adjusted.
 
 // Type - return box type
 func (b *UUIDBox) Type() string {
-	return "uuid"
+	_ = "STUB: not implemented"
+
+	// Size - return calculated size including tfxd/tfrf
+	return ""
 }
 
-// Size - return calculated size including tfxd/tfrf
-func (b *UUIDBox) Size() uint64 {
-	var size uint64 = 8 + 16
-	switch u := b.uuid; {
-	case u.Equal(uuidTfxd):
-		size += b.Tfxd.size()
-	case u.Equal(uuidTfrf):
-		size += b.Tfrf.size()
-	case u.Equal(uuidPiffSenc):
-		size += b.Senc.Size() - 8 // -8 because no header
-	case u.Equal(uuidPiffTenc):
-		size += b.PiffTenc.size()
-	case u.Equal(uuidSphericalVideoV1):
-		size += uint64(len(b.SphericalV1.XMLData))
-	default:
-		size += uint64(len(b.UnknownPayload))
-	}
-	return size
-}
+func (b *UUIDBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
+
+// -8 because no header
 
 // Encode - write box to w
-func (b *UUIDBox) Encode(w io.Writer) error {
-	sw := bits.NewFixedSliceWriter(int(b.Size()))
-	err := b.EncodeSW(sw)
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(sw.Bytes())
-	return err
-}
+func (b *UUIDBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // EncodeSW - box-specific encode to slicewriter
-func (b *UUIDBox) EncodeSW(sw bits.SliceWriter) error {
-	err := EncodeHeaderSW(b, sw)
-	if err != nil {
-		return err
-	}
-	sw.WriteBytes(b.uuid[:])
-	switch u := b.uuid; {
-	case u.Equal(uuidTfxd):
-		err = b.Tfxd.encode(sw)
-	case u.Equal(uuidTfrf):
-		err = b.Tfrf.encode(sw)
-	case u.Equal(uuidPiffSenc):
-		err = b.Senc.EncodeSWNoHdr(sw)
-	case u.Equal(uuidPiffTenc):
-		err = b.PiffTenc.encode(sw)
-	case u.Equal(uuidSphericalVideoV1):
-		sw.WriteBytes([]byte(b.SphericalV1.XMLData))
-	default:
-		sw.WriteBytes(b.UnknownPayload)
-	}
-	if err != nil {
-		return err
-	}
-	return sw.AccError()
-}
+func (b *UUIDBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // SubType - interpret the UUID as a known sub type or unknown
-func (b *UUIDBox) SubType() string {
-	switch u := b.uuid; {
-	case u.Equal(uuidTfxd):
-		return "tfxd"
-	case u.Equal(uuidTfrf):
-		return "tfrf"
-	case u.Equal(uuidPiffSenc):
-		return "senc"
-	case u.Equal(uuidPiffTenc):
-		return "piff-tenc"
-	case u.Equal(uuidSphericalVideoV1):
-		return "spherical-v1"
-	default:
-		return "unknown"
-	}
-}
+func (b *UUIDBox) SubType() string { _ = "STUB: not implemented"; return "" }
 
-func decodeTfxd(s bits.SliceReader) (*TfxdData, error) {
-	versionAndFlags := s.ReadUint32()
-	version := byte(versionAndFlags >> 24)
-	var fragmentAbsoluteTime uint64
-	var fragmentAbsoluteDuration uint64
-	if version == 0 {
-		fragmentAbsoluteTime = uint64(s.ReadUint32())
-		fragmentAbsoluteDuration = uint64(s.ReadUint32())
-	} else {
-		fragmentAbsoluteTime = s.ReadUint64()
-		fragmentAbsoluteDuration = s.ReadUint64()
-	}
+func decodeTfxd(s bits.SliceReader) (*TfxdData, error) { _ = "STUB: not implemented"; return nil, nil }
 
-	t := &TfxdData{
-		Version:                  version,
-		Flags:                    versionAndFlags & flagsMask,
-		FragmentAbsoluteTime:     fragmentAbsoluteTime,
-		FragmentAbsoluteDuration: fragmentAbsoluteDuration,
-	}
-	return t, nil
-}
+func (t *TfxdData) size() uint64 { _ = "STUB: not implemented"; return 0 }
 
-func (t *TfxdData) size() uint64 {
-	return 4 + 8 + 8*uint64(t.Version)
-}
+func (t *TfxdData) encode(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
-func (t *TfxdData) encode(sw bits.SliceWriter) error {
-	versionAndFlags := (uint32(t.Version) << 24) + t.Flags
-	sw.WriteUint32(versionAndFlags)
-	if t.Version == 0 {
-		sw.WriteUint32(uint32(t.FragmentAbsoluteTime))
-		sw.WriteUint32(uint32(t.FragmentAbsoluteDuration))
-	} else {
-		sw.WriteUint64(t.FragmentAbsoluteTime)
-		sw.WriteUint64(t.FragmentAbsoluteDuration)
-	}
-	return sw.AccError()
-}
+func decodeTfrf(s bits.SliceReader) (*TfrfData, error) { _ = "STUB: not implemented"; return nil, nil }
 
-func decodeTfrf(s bits.SliceReader) (*TfrfData, error) {
-	versionAndFlags := s.ReadUint32()
-	version := byte(versionAndFlags >> 24)
-	t := &TfrfData{
-		Version:       version,
-		Flags:         versionAndFlags & flagsMask,
-		FragmentCount: s.ReadUint8(),
-	}
-	if t.Version == 0 {
-		for i := byte(0); i < t.FragmentCount; i++ {
-			t.FragmentAbsoluteTimes = append(t.FragmentAbsoluteTimes, uint64(s.ReadUint32()))
-			t.FragmentAbsoluteDurations = append(t.FragmentAbsoluteDurations, uint64(s.ReadUint32()))
-		}
-	} else {
-		for i := byte(0); i < t.FragmentCount; i++ {
-			t.FragmentAbsoluteTimes = append(t.FragmentAbsoluteTimes, s.ReadUint64())
-			t.FragmentAbsoluteDurations = append(t.FragmentAbsoluteDurations, s.ReadUint64())
-		}
-	}
-	return t, nil
-}
+func (t *TfrfData) size() uint64 { _ = "STUB: not implemented"; return 0 }
 
-func (t *TfrfData) size() uint64 {
-	return 4 + 1 + (8+8*uint64(t.Version))*uint64(t.FragmentCount)
-}
-
-func (t *TfrfData) encode(sw bits.SliceWriter) error {
-	versionAndFlags := (uint32(t.Version) << 24) + t.Flags
-	sw.WriteUint32(versionAndFlags)
-	sw.WriteUint8(t.FragmentCount)
-	if t.Version == 0 {
-		for i := byte(0); i < t.FragmentCount; i++ {
-			sw.WriteUint32(uint32(t.FragmentAbsoluteTimes[i]))
-			sw.WriteUint32(uint32(t.FragmentAbsoluteDurations[i]))
-		}
-	} else {
-		for i := byte(0); i < t.FragmentCount; i++ {
-			sw.WriteUint64(t.FragmentAbsoluteTimes[i])
-			sw.WriteUint64(t.FragmentAbsoluteDurations[i])
-		}
-	}
-	return sw.AccError()
-}
+func (t *TfrfData) encode(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // Info - box-specific info
 func (b *UUIDBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, b, -1, 0)
-	bd.write(" - uuid: %s", b.uuid)
-	bd.write(" - subType: %s", b.SubType())
-	level := getInfoLevel(b, specificBoxLevels)
-	if level > 0 {
-		switch b.SubType() {
-		case "tfxd":
-			bd.write(" - absTime=%d absDur=%d", b.Tfxd.FragmentAbsoluteTime, b.Tfxd.FragmentAbsoluteDuration)
-		case "tfrf":
-			for i := 0; i < int(b.Tfrf.FragmentCount); i++ {
-				bd.write(" - [%d]: absTime=%d absDur=%d", i+1, b.Tfrf.FragmentAbsoluteTimes[i], b.Tfrf.FragmentAbsoluteDurations[i])
-			}
-		case "senc":
-			err := b.Senc.Info(w, specificBoxLevels, indent+"    ", indentStep)
-			if err != nil {
-				return fmt.Errorf("piff senc: %w", err)
-			}
-		case "piff-tenc":
-			bd.write(" - algorithmID: %d", b.PiffTenc.AlgorithmID)
-			bd.write(" - ivSize: %d", b.PiffTenc.IVSize)
-			bd.write(" - kid: %s", b.PiffTenc.KID)
-		case "spherical-v1":
-			if b.SphericalV1 != nil {
-				bd.write(" - xmlDataLength: %d", len(b.SphericalV1.XMLData))
-				if level > 1 {
-					bd.write(" - xmlData: %s", b.SphericalV1.XMLData)
-				}
-			}
-		default:
-			bd.write(" - payload: %s", hex.EncodeToString(b.UnknownPayload))
-		}
-	}
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // UnpackKey unpacks a hex or base64 encoded 16-byte key.
 // The key can be in uuid formats with hyphens at positions 8, 13, 18, 23.
-func UnpackKey(inKey string) (key []byte, err error) {
-	shorten := func(s string) string {
-		return fmt.Sprintf("%s...%s", s[:6], s[len(s)-6:])
-	}
-	switch len(inKey) {
-	case 36:
-		if inKey[8] != '-' || inKey[13] != '-' || inKey[18] != '-' || inKey[23] != '-' {
-			return nil, fmt.Errorf("bad uuid format: %s", shorten(inKey))
-		}
-		inKey = strings.ReplaceAll(inKey, "-", "")
-		if len(inKey) != 32 {
-			return nil, fmt.Errorf("bad uuid format: %s", shorten(inKey))
-		}
-		key, err = hex.DecodeString(inKey)
-		if err != nil {
-			return nil, fmt.Errorf("bad uuid %s: %w", shorten(inKey), err)
-		}
-	case 32:
-		key, err = hex.DecodeString(inKey)
-		if err != nil {
-			return nil, fmt.Errorf("bad hex %s: %w", shorten(inKey), err)
-		}
-	case 24:
-		key, err = base64.StdEncoding.DecodeString(inKey)
-		if err != nil {
-			return nil, fmt.Errorf("bad base64 %s: %w", shorten(inKey), err)
-		}
-	default:
-		return nil, fmt.Errorf("cannot decode key %s", inKey)
-	}
-	return key, nil
-}
+func UnpackKey(inKey string) (key []byte, err error) { _ = "STUB: not implemented"; return nil, nil }

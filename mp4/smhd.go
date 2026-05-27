@@ -17,67 +17,45 @@ type SmhdBox struct {
 
 // CreateSmhd - Create Sound Media Header Box (all is zero)
 func CreateSmhd() *SmhdBox {
-	return &SmhdBox{}
+	_ = "STUB: not implemented"
+
+	// DecodeSmhd - box-specific decode
+	return nil
 }
 
-// DecodeSmhd - box-specific decode
 func DecodeSmhd(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	data, err := readBoxBody(r, hdr)
-	if err != nil {
-		return nil, err
-	}
-	sr := bits.NewFixedSliceReader(data)
-	return DecodeSmhdSR(hdr, startPos, sr)
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeSmhdSR - box-specific decode
 func DecodeSmhdSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	versionAndFlags := sr.ReadUint32()
-	b := SmhdBox{
-		Version: byte(versionAndFlags >> 24),
-		Flags:   versionAndFlags & flagsMask,
-		Balance: sr.ReadUint16(),
-	}
-	sr.SkipBytes(2) // Reserved
-	return &b, sr.AccError()
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
+
+// Reserved
 
 // Type - box type
 func (b *SmhdBox) Type() string {
-	return "smhd"
+	_ = "STUB: not implemented"
+
+	// Size - calculated size of box
+	return ""
 }
 
-// Size - calculated size of box
-func (b *SmhdBox) Size() uint64 {
-	return boxHeaderSize + 8
-}
+func (b *SmhdBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
 // Encode - write box to w
-func (b *SmhdBox) Encode(w io.Writer) error {
-	sw := bits.NewFixedSliceWriter(int(b.Size()))
-	err := b.EncodeSW(sw)
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(sw.Bytes())
-	return err
-}
+func (b *SmhdBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // EncodeSW - box-specific encode to slicewriter
-func (b *SmhdBox) EncodeSW(sw bits.SliceWriter) error {
-	err := EncodeHeaderSW(b, sw)
-	if err != nil {
-		return err
-	}
-	versionAndFlags := (uint32(b.Version) << 24) + b.Flags
-	sw.WriteUint32(versionAndFlags)
-	sw.WriteUint16(b.Balance)
-	sw.WriteUint16(0) // Reserved
-	return sw.AccError()
-}
+func (b *SmhdBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
+
+// Reserved
 
 // Info - write box-specific information
 func (b *SmhdBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, b, int(b.Version), b.Flags)
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }

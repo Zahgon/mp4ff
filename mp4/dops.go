@@ -22,96 +22,39 @@ type DopsBox struct {
 
 // DecodeDops - box-specific decode
 func DecodeDops(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	data, err := readBoxBody(r, hdr)
-	if err != nil {
-		return nil, err
-	}
-	sr := bits.NewFixedSliceReader(data)
-	return DecodeDopsSR(hdr, startPos, sr)
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeDopsSR - box-specific decode
 func DecodeDopsSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	d := &DopsBox{}
-	d.Version = sr.ReadUint8()
-	d.OutputChannelCount = sr.ReadUint8()
-	d.PreSkip = sr.ReadUint16()
-	d.InputSampleRate = sr.ReadUint32()
-	d.OutputGain = sr.ReadInt16()
-	d.ChannelMappingFamily = sr.ReadUint8()
-
-	if d.ChannelMappingFamily != 0 {
-		d.StreamCount = sr.ReadUint8()
-		d.CoupledCount = sr.ReadUint8()
-		d.ChannelMapping = sr.ReadBytes(int(d.OutputChannelCount))
-	}
-
-	return d, sr.AccError()
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // Type - return box type
 func (d *DopsBox) Type() string {
-	return "dOps"
+	_ = "STUB: not implemented"
+
+	// Size - return calculated size
+	return ""
 }
 
-// Size - return calculated size
-func (d *DopsBox) Size() uint64 {
-	size := uint64(boxHeaderSize + 11) // Version + OutputChannelCount + PreSkip + InputSampleRate + OutputGain + ChannelMappingFamily
-	if d.ChannelMappingFamily != 0 {
-		size += 2                             // StreamCount + CoupledCount
-		size += uint64(len(d.ChannelMapping)) // ChannelMapping
-	}
-	return size
-}
+func (d *DopsBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
+
+// Version + OutputChannelCount + PreSkip + InputSampleRate + OutputGain + ChannelMappingFamily
+
+// StreamCount + CoupledCount
+// ChannelMapping
 
 // Encode - write box to w
-func (d *DopsBox) Encode(w io.Writer) error {
-	sw := bits.NewFixedSliceWriter(int(d.Size()))
-	err := d.EncodeSW(sw)
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(sw.Bytes())
-	return err
-}
+func (d *DopsBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // EncodeSW - write box to sw
-func (d *DopsBox) EncodeSW(sw bits.SliceWriter) error {
-	err := EncodeHeaderSW(d, sw)
-	if err != nil {
-		return err
-	}
-	sw.WriteUint8(d.Version)
-	sw.WriteUint8(d.OutputChannelCount)
-	sw.WriteUint16(d.PreSkip)
-	sw.WriteUint32(d.InputSampleRate)
-	sw.WriteInt16(d.OutputGain)
-	sw.WriteUint8(d.ChannelMappingFamily)
-
-	if d.ChannelMappingFamily != 0 {
-		sw.WriteUint8(d.StreamCount)
-		sw.WriteUint8(d.CoupledCount)
-		sw.WriteBytes(d.ChannelMapping)
-	}
-
-	return sw.AccError()
-}
+func (d *DopsBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // Info - write box info to w
 func (d *DopsBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, d, -1, 0)
-	bd.write(" - Version: %d", d.Version)
-	bd.write(" - OutputChannelCount: %d", d.OutputChannelCount)
-	bd.write(" - PreSkip: %d", d.PreSkip)
-	bd.write(" - InputSampleRate: %d", d.InputSampleRate)
-	bd.write(" - OutputGain: %d", d.OutputGain)
-	bd.write(" - ChannelMappingFamily: %d", d.ChannelMappingFamily)
-
-	if d.ChannelMappingFamily != 0 {
-		bd.write(" - StreamCount: %d", d.StreamCount)
-		bd.write(" - CoupledCount: %d", d.CoupledCount)
-		bd.write(" - ChannelMapping: %v", d.ChannelMapping)
-	}
-
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }

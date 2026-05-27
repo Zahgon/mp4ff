@@ -1,10 +1,7 @@
 package mp4
 
 import (
-	"bytes"
-	"fmt"
 	"io"
-	"strings"
 
 	"github.com/Eyevinn/mp4ff/bits"
 )
@@ -64,125 +61,52 @@ type Dac3Box struct {
 
 // DecodeDac3 - box-specific decode
 func DecodeDac3(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	data, err := io.ReadAll(r)
-	if err != nil {
-		return nil, err
-	}
-	return decodeDac3FromData(data)
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeDac3SR - box-specific decode
 func DecodeDac3SR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	data := sr.ReadBytes(hdr.payloadLen())
-	if sr.AccError() != nil {
-		return nil, sr.AccError()
-	}
-	return decodeDac3FromData(data)
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
-func decodeDac3FromData(data []byte) (Box, error) {
-	b := Dac3Box{}
-	if len(data) > 3 {
-		b.InitialZeroes = byte(len(data) - 3)
-	}
-	buf := bytes.NewBuffer(data)
-	br := bits.NewReader(buf)
-	for i := 0; i < int(b.InitialZeroes); i++ {
-		if zero := br.Read(8); zero != 0 {
-			return nil, fmt.Errorf("dac3 box, extra initial bytes are not zero")
-		}
-	}
-	b.FSCod = byte(br.Read(2))
-	b.BSID = byte(br.Read(5))
-	b.BSMod = byte(br.Read(3))
-	b.ACMod = byte(br.Read(3))
-	b.LFEOn = byte(br.Read(1))
-	b.BitRateCode = byte(br.Read(5))
-	// 5 bits reserved follows
-	b.Reserved = byte(br.Read(5))
-	return &b, nil
-}
+func decodeDac3FromData(data []byte) (Box, error) { _ = "STUB: not implemented"; return *new(Box), nil }
+
+// 5 bits reserved follows
 
 // Type - box type
 func (b *Dac3Box) Type() string {
-	return "dac3"
+	_ = "STUB: not implemented"
+
+	// Size - calculated size of box
+	return ""
 }
 
-// Size - calculated size of box
-func (b *Dac3Box) Size() uint64 {
-	return uint64(boxHeaderSize + 3 + uint(b.InitialZeroes))
-}
+func (b *Dac3Box) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
 // Encode - write box to w
-func (b *Dac3Box) Encode(w io.Writer) error {
-	sw := bits.NewFixedSliceWriter(int(b.Size()))
-	err := b.EncodeSW(sw)
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(sw.Bytes())
-	return err
-}
+func (b *Dac3Box) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // Encode - write box to sw
-func (b *Dac3Box) EncodeSW(sw bits.SliceWriter) error {
-	err := EncodeHeaderSW(b, sw)
-	if err != nil {
-		return err
-	}
-	for i := 0; i < int(b.InitialZeroes); i++ {
-		sw.WriteBits(0, 8)
-	}
-	sw.WriteBits(uint(b.FSCod), 2)
-	sw.WriteBits(uint(b.BSID), 5)
-	sw.WriteBits(uint(b.BSMod), 3)
-	sw.WriteBits(uint(b.ACMod), 3)
-	sw.WriteBits(uint(b.LFEOn), 1)
-	sw.WriteBits(uint(b.BitRateCode), 5)
-	sw.WriteBits(uint(b.Reserved), 5) // 5-bits reserved
-	return sw.AccError()
-}
+func (b *Dac3Box) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
+
+// 5-bits reserved
 
 // ChannelInfo - number of channels and channelmap according to E.1.3.1.8
 func (b *Dac3Box) ChannelInfo() (nrChannels int, chanmap uint16) {
-	speakers := GetChannelListFromACMod(b.ACMod)
-	if b.LFEOn == 1 {
-		speakers = append(speakers, "LFE")
-	}
-	nrChannels = len(speakers)
-	for _, speaker := range speakers {
-		chanmap |= CustomChannelMapLocations[speaker]
-	}
-	return nrChannels, chanmap
+	_ = "STUB: not implemented"
+	return 0, 0
 }
 
 func (b *Dac3Box) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, b, -1, 0)
-	bd.write(" - sampleRateCode=%d => sampleRate=%d", b.FSCod, AC3SampleRates[b.FSCod])
-	bd.write(" - bitStreamInformation=%d", b.BSID)
-	bd.write(" - audioCodingMode=%d => channelConfiguration=%q", b.ACMod, AC3acmodChannelTable[b.ACMod])
-	bd.write(" - lowFrequencyEffectsChannelOn=%d", b.LFEOn)
-	bd.write(" - bitRateCode=%d => bitrate=%dkbps", b.BitRateCode, AC3BitrateCodesKbps[b.BitRateCode])
-	nrChannels, chanmap := b.ChannelInfo()
-	bd.write(" - nrChannels=%d, chanmap=%04x", nrChannels, chanmap)
-	if b.Reserved != 0 {
-		bd.write(" - reserved=%d", b.Reserved)
-	}
-	if b.InitialZeroes > 0 {
-		bd.write(" - weird initial zero bytes=%d", b.InitialZeroes)
-	}
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func (b *Dac3Box) BitrateBps() int {
-	return int(AC3BitrateCodesKbps[b.BitRateCode]) * 1000
-}
+func (b *Dac3Box) BitrateBps() int { _ = "STUB: not implemented"; return 0 }
 
-func (b *Dac3Box) SamplingFrequency() int {
-	return int(AC3SampleRates[b.FSCod])
-}
+func (b *Dac3Box) SamplingFrequency() int { _ = "STUB: not implemented"; return 0 }
 
 // GetChannelListFromACMod - get list of channels from acmod byte
-func GetChannelListFromACMod(acmod byte) []string {
-	return strings.Split(AC3acmodChannelTable[acmod], "/")
-}
+func GetChannelListFromACMod(acmod byte) []string { _ = "STUB: not implemented"; return nil }

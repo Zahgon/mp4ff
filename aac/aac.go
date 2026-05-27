@@ -1,7 +1,6 @@
 package aac
 
 import (
-	"fmt"
 	"io"
 
 	"github.com/Eyevinn/mp4ff/bits"
@@ -75,93 +74,29 @@ var ReverseFrequencies = map[int]byte{
 
 // DecodeAudioSpecificConfig -
 func DecodeAudioSpecificConfig(r io.Reader) (*AudioSpecificConfig, error) {
-	br := bits.NewReader(r)
-
-	asc := &AudioSpecificConfig{}
-	audioObjectType := byte(br.Read(5))
-	asc.ObjectType = audioObjectType
-	switch audioObjectType {
-	case AAClc:
-		// do nothing
-	case HEAACv1:
-		asc.SBRPresentFlag = true
-	case HEAACv2:
-		asc.SBRPresentFlag = true
-		asc.PSPresentFlag = true
-	default:
-		return asc, fmt.Errorf("unsupported object type: %d", audioObjectType)
-	}
-	frequency, ok := getFrequency(br)
-	if !ok {
-		return asc, fmt.Errorf("strange frequency index")
-	}
-	asc.SamplingFrequency = frequency
-	asc.ChannelConfiguration = byte(br.Read(4))
-	switch audioObjectType {
-	case HEAACv1, HEAACv2:
-		extFrequency, ok := getFrequency(br)
-		if !ok {
-			return asc, fmt.Errorf("strange frequency index")
-		}
-		asc.ExtensionFrequency = extFrequency
-		audioObjectType = byte(br.Read(5)) // Shall be set to AAC-LC here again
-	}
-	if audioObjectType != AAClc {
-		return nil, fmt.Errorf("base audioObjectType is %d instead of AAC-LC (2)", audioObjectType)
-	}
-	//GASpecificConfig()
-	_ = br.Read(3) //GASpecificConfig
-	// Done (there may be trailing bits)
-	return asc, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// do nothing
+
+// Shall be set to AAC-LC here again
+
+//GASpecificConfig()
+//GASpecificConfig
+// Done (there may be trailing bits)
 
 // Encode - write AudioSpecificConfig to w for AAC-LC and HE-AAC
-func (a *AudioSpecificConfig) Encode(w io.Writer) error {
-	switch a.ObjectType {
-	case AAClc, HEAACv1, HEAACv2:
-		// fine
-	default:
-		return fmt.Errorf("audioObjectType %d not supported", a.ObjectType)
-	}
-	bw := bits.NewWriter(w)
-	bw.Write(uint(a.ObjectType), 5)
-	samplingIndex, ok := ReverseFrequencies[a.SamplingFrequency]
-	if ok {
-		bw.Write(uint(samplingIndex), 4)
-	} else {
-		bw.Write(0x0f, 4)
-		bw.Write(uint(a.SamplingFrequency), 24)
-	}
-	bw.Write(uint(a.ChannelConfiguration), 4)
-	switch a.ObjectType {
-	case HEAACv1, HEAACv2:
-		samplingIndex, ok := ReverseFrequencies[a.ExtensionFrequency]
-		if ok {
-			bw.Write(uint(samplingIndex), 4)
-		} else {
-			bw.Write(0x0f, 4)
-			bw.Write(uint(a.ExtensionFrequency), 24)
-		}
-		bw.Write(AAClc, 5) // base audioObjectType
-	}
-	bw.Write(0x00, 3) // GASpecificConfig
-	bw.Flush()
-	return bw.AccError()
-}
+func (a *AudioSpecificConfig) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
+
+// fine
+
+// base audioObjectType
+
+// GASpecificConfig
 
 // getFrequency - either from 4-bit index or 24-bit value
 func getFrequency(br *bits.Reader) (frequency int, ok bool) {
-	frequencyIndex := br.Read(4)
-	if frequencyIndex == 0x0f {
-		f := br.Read(24)
-		if br.AccError() != nil {
-			return 0, false
-		}
-		return int(f), true
-	}
-	if br.AccError() != nil {
-		return 0, false
-	}
-	frequency, ok = FrequencyTable[byte(frequencyIndex)]
-	return frequency, ok
+	_ = "STUB: not implemented"
+	return 0, false
 }

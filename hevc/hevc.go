@@ -1,10 +1,5 @@
 package hevc
 
-import (
-	"encoding/binary"
-	"fmt"
-)
-
 // NaluType - HEVC nal type according to ISO/IEC 23008-2 Table 7.1
 type NaluType uint16
 
@@ -52,54 +47,17 @@ const (
 	highestVideoNaluType = 31
 )
 
-func (n NaluType) String() string {
-	switch n {
-	case NALU_TRAIL_N, NALU_TRAIL_R:
-		return fmt.Sprintf("NonRAP_Trail_%d", n)
-	case NALU_TSA_N, NALU_TSA_R:
-		return fmt.Sprintf("NonRAP_TSA_%d", n)
-	case NALU_STSA_N, NALU_STSA_R:
-		return fmt.Sprintf("NonRAP_STSA_%d", n)
-	case NALU_RADL_N, NALU_RADL_R:
-		return fmt.Sprintf("NonRAP_RADL_%d", n)
-	case NALU_RASL_N, NALU_RASL_R:
-		return fmt.Sprintf("NonRAP_RASL_%d", n)
-	case NALU_BLA_N_LP, NALU_BLA_W_LP, NALU_BLA_W_RADL:
-		return fmt.Sprintf("RAP_BLA_%d", n)
-	case NALU_IDR_N_LP, NALU_IDR_W_RADL:
-		return fmt.Sprintf("RAP_IDR_%d", n)
-	case NALU_CRA:
-		return fmt.Sprintf("RAP_CRA_%d", n)
-	case NALU_VPS:
-		return fmt.Sprintf("VPS_%d", n)
-	case NALU_SPS:
-		return fmt.Sprintf("SPS_%d", n)
-	case NALU_PPS:
-		return fmt.Sprintf("PPS_%d", n)
-	case NALU_AUD:
-		return fmt.Sprintf("AUD_%d", n)
-	case NALU_SEI_PREFIX, NALU_SEI_SUFFIX:
-		return fmt.Sprintf("SEI_%d", n)
-	default:
-		return fmt.Sprintf("Other_%d", n)
-	}
-}
+func (n NaluType) String() string { _ = "STUB: not implemented"; return "" }
 
 // GetNaluType - extract NALU type from first byte of NALU Header
-func GetNaluType(naluHeaderStart byte) NaluType {
-	return NaluType((naluHeaderStart >> 1) & 0x3f)
-}
+func GetNaluType(naluHeaderStart byte) NaluType { _ = "STUB: not implemented"; return *new(NaluType) }
 
 // GetNaluLayerID extracts nuh_layer_id (6 bits) from the 2-byte HEVC NAL unit header.
 // HEVC NAL header: forbidden(1) | nal_unit_type(6) | nuh_layer_id(6) | nuh_temporal_id_plus1(3)
-func GetNaluLayerID(naluHeader []byte) byte {
-	return ((naluHeader[0] & 0x01) << 5) | ((naluHeader[1] >> 3) & 0x1f)
-}
+func GetNaluLayerID(naluHeader []byte) byte { _ = "STUB: not implemented"; return 0 }
 
 // GetNaluTemporalID extracts nuh_temporal_id (nuh_temporal_id_plus1 - 1) from the 2-byte HEVC NAL unit header.
-func GetNaluTemporalID(naluHeader []byte) byte {
-	return (naluHeader[1] & 0x07) - 1
-}
+func GetNaluTemporalID(naluHeader []byte) byte { _ = "STUB: not implemented"; return 0 }
 
 // NaluInfo holds parsed information from a HEVC NAL unit header.
 type NaluInfo struct {
@@ -109,164 +67,46 @@ type NaluInfo struct {
 }
 
 // ParseNaluHeader parses a 2-byte HEVC NAL unit header.
-func ParseNaluHeader(naluHeader []byte) NaluInfo {
-	return NaluInfo{
-		Type:       GetNaluType(naluHeader[0]),
-		LayerID:    GetNaluLayerID(naluHeader),
-		TemporalID: GetNaluTemporalID(naluHeader),
-	}
-}
+func ParseNaluHeader(naluHeader []byte) NaluInfo { _ = "STUB: not implemented"; return *new(NaluInfo) }
 
 // SplitNalusByLayerID splits length-prefixed NALUs in a sample by nuh_layer_id.
 // The lengthSize is typically 4 bytes.
 func SplitNalusByLayerID(sample []byte, lengthSize int) map[byte][][]byte {
-	result := make(map[byte][][]byte)
-	pos := 0
-	for pos+lengthSize <= len(sample) {
-		var naluLength uint32
-		switch lengthSize {
-		case 4:
-			naluLength = binary.BigEndian.Uint32(sample[pos : pos+4])
-		case 2:
-			naluLength = uint32(binary.BigEndian.Uint16(sample[pos : pos+2]))
-		case 1:
-			naluLength = uint32(sample[pos])
-		default:
-			return result
-		}
-		pos += lengthSize
-		if pos+int(naluLength) > len(sample) || naluLength < 2 {
-			break
-		}
-		layerID := GetNaluLayerID(sample[pos : pos+2])
-		result[layerID] = append(result[layerID], sample[pos:pos+int(naluLength)])
-		pos += int(naluLength)
-	}
-	return result
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // FindNaluTypes - find list of nalu types in sample
-func FindNaluTypes(sample []byte) []NaluType {
-	naluList := make([]NaluType, 0)
-	length := len(sample)
-	if length < 4 {
-		return naluList
-	}
-	var pos uint32 = 0
-	for pos < uint32(length-4) {
-		naluLength := binary.BigEndian.Uint32(sample[pos : pos+4])
-		pos += 4
-		naluType := GetNaluType(sample[pos])
-		naluList = append(naluList, naluType)
-		pos += naluLength
-	}
-	return naluList
-}
+func FindNaluTypes(sample []byte) []NaluType { _ = "STUB: not implemented"; return nil }
 
 // FindNaluTypesUpToFirstVideoNalu - all nalu types up to first video nalu
 func FindNaluTypesUpToFirstVideoNalu(sample []byte) []NaluType {
-	naluList := make([]NaluType, 0)
-	length := len(sample)
-	if length < 4 {
-		return naluList
-	}
-	var pos uint32 = 0
-	for pos < uint32(length-4) {
-		naluLength := binary.BigEndian.Uint32(sample[pos : pos+4])
-		pos += 4
-		naluType := GetNaluType(sample[pos])
-		naluList = append(naluList, naluType)
-		pos += naluLength
-		if IsVideoNaluType(naluType) {
-			break // Video has started
-		}
-	}
-	return naluList
+	_ = "STUB: not implemented"
+	return nil
 }
 
+// Video has started
+
 // IsVideoNaluType returns true if NaluType is a video type (<= 31)
-func IsVideoNaluType(naluType NaluType) bool {
-	return naluType <= highestVideoNaluType
-}
+func IsVideoNaluType(naluType NaluType) bool { _ = "STUB: not implemented"; return false }
 
 // ContainsNaluType - is specific NaluType present in sample
 func ContainsNaluType(sample []byte, specificNaluType NaluType) bool {
-	var pos uint32 = 0
-	length := len(sample)
-	if length < 4 {
-		return false
-	}
-	for pos < uint32(length-4) {
-		naluLength := binary.BigEndian.Uint32(sample[pos : pos+4])
-		pos += 4
-		naluType := GetNaluType(sample[pos])
-		if naluType == specificNaluType {
-			return true
-		}
-		pos += naluLength
-	}
+	_ = "STUB: not implemented"
 	return false
 }
 
 // IsRAPSample - is Random Access picture (NALU 16-23)
-func IsRAPSample(sample []byte) bool {
-	for _, naluType := range FindNaluTypes(sample) {
-		if 16 <= naluType && naluType <= 23 {
-			return true
-		}
-	}
-	return false
-}
+func IsRAPSample(sample []byte) bool { _ = "STUB: not implemented"; return false }
 
 // IsIDRSample - is IDR picture (NALU 19-20)
-func IsIDRSample(sample []byte) bool {
-	for _, naluType := range FindNaluTypes(sample) {
-		if 19 <= naluType && naluType <= 20 {
-			return true
-		}
-	}
-	return false
-}
+func IsIDRSample(sample []byte) bool { _ = "STUB: not implemented"; return false }
 
 // HasParameterSets - Check if HEVC VPS, SPS and PPS are present
-func HasParameterSets(b []byte) bool {
-	naluTypeList := FindNaluTypesUpToFirstVideoNalu(b)
-	var hasVPS, hasSPS, hasPPS bool
-	for _, naluType := range naluTypeList {
-		switch naluType {
-		case NALU_VPS:
-			hasVPS = true
-		case NALU_SPS:
-			hasSPS = true
-		case NALU_PPS:
-			hasPPS = true
-		}
-		if hasVPS && hasSPS && hasPPS {
-			return true
-		}
-	}
-	return false
-}
+func HasParameterSets(b []byte) bool { _ = "STUB: not implemented"; return false }
 
 // GetParameterSets - get (multiple) VPS,  SPS, and PPS from a sample
 func GetParameterSets(sample []byte) (vps, sps, pps [][]byte) {
-	sampleLength := uint32(len(sample))
-	var pos uint32 = 0
-naluLoop:
-	for pos < sampleLength {
-		naluLength := binary.BigEndian.Uint32(sample[pos : pos+4])
-		pos += 4
-		switch naluType := GetNaluType(sample[pos]); {
-		case naluType == NALU_VPS:
-			vps = append(vps, sample[pos:pos+naluLength])
-		case naluType == NALU_SPS:
-			sps = append(sps, sample[pos:pos+naluLength])
-		case naluType == NALU_PPS:
-			pps = append(pps, sample[pos:pos+naluLength])
-		case naluType <= highestVideoNaluType:
-			break naluLoop
-		}
-		pos += naluLength
-	}
-	return vps, sps, pps
+	_ = "STUB: not implemented"
+	return nil, nil, nil
 }

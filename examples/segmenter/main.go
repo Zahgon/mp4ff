@@ -1,13 +1,9 @@
 package main
 
 import (
-	"errors"
 	"flag"
 	"fmt"
 	"os"
-	"path"
-
-	"github.com/Eyevinn/mp4ff/mp4"
 )
 
 const (
@@ -39,22 +35,8 @@ type options struct {
 }
 
 func parseOptions(fs *flag.FlagSet, args []string) (*options, error) {
-	fs.Usage = func() {
-		fmt.Fprintf(os.Stderr, usg, appName, appName)
-		fmt.Fprintf(os.Stderr, "\n%s [options] infile outfilePrefix\n\noptions:\n", appName)
-		fs.PrintDefaults()
-	}
-
-	opts := options{}
-
-	fs.Uint64Var(&opts.chunkDurMS, "d", 0,
-		"Required: segment duration (milliseconds). The segments will start at syncSamples with decoded time >= n*segDur")
-	fs.BoolVar(&opts.multipex, "m", false, "Output multiplexed segments")
-	fs.BoolVar(&opts.lazy, "lazy", false, "Read/write mdat lazily")
-	fs.BoolVar(&opts.verbose, "v", false, "Verbose output")
-
-	err := fs.Parse(args[1:])
-	return &opts, err
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 func main() {
@@ -64,65 +46,4 @@ func main() {
 	}
 }
 
-func run(args []string, outDir string) error {
-	fs := flag.NewFlagSet(appName, flag.ContinueOnError)
-	o, err := parseOptions(fs, args)
-
-	if err != nil {
-		if errors.Is(err, flag.ErrHelp) {
-			return nil
-		}
-		return err
-	}
-
-	if len(fs.Args()) != 2 {
-		fs.Usage()
-		return fmt.Errorf("infile and outfilePrefix must be set")
-	}
-
-	if o.chunkDurMS == 0 {
-		fs.Usage()
-		return fmt.Errorf("segment duration must be set (and positive)")
-	}
-
-	ifd, err := os.Open(fs.Arg(0))
-	if err != nil {
-		return fmt.Errorf("error opening file: %w", err)
-	}
-	defer ifd.Close()
-
-	outfilePrefix := path.Join(outDir, fs.Arg(1))
-
-	var parsedMp4 *mp4.File
-	if o.lazy {
-		parsedMp4, err = mp4.DecodeFile(ifd, mp4.WithDecodeMode(mp4.DecModeLazyMdat))
-	} else {
-		parsedMp4, err = mp4.DecodeFile(ifd)
-	}
-	if err != nil {
-		return fmt.Errorf("error decoding file: %w", err)
-	}
-	segmenter, err := NewSegmenter(parsedMp4)
-	if err != nil {
-		return fmt.Errorf("error creating segmenter: %w", err)
-	}
-	syncTimescale, segmentStarts := getSegmentStartsFromVideo(parsedMp4, uint32(o.chunkDurMS))
-	fmt.Printf("segment starts in timescale %d: %v\n", syncTimescale, segmentStarts)
-	err = segmenter.SetTargetSegmentation(syncTimescale, segmentStarts)
-	if err != nil {
-		return fmt.Errorf("error setting target segmentation: %w", err)
-	}
-	if o.multipex {
-		err = makeMultiTrackSegments(segmenter, parsedMp4, ifd, outfilePrefix)
-	} else {
-		if o.lazy {
-			err = makeSingleTrackSegmentsLazyWrite(segmenter, parsedMp4, ifd, outfilePrefix)
-		} else {
-			err = makeSingleTrackSegments(segmenter, parsedMp4, nil, outfilePrefix)
-		}
-	}
-	if err != nil {
-		return err
-	}
-	return nil
-}
+func run(args []string, outDir string) error { _ = "STUB: not implemented"; return nil }

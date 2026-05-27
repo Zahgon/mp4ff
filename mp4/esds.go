@@ -1,7 +1,6 @@
 package mp4
 
 import (
-	"fmt"
 	"io"
 
 	"github.com/Eyevinn/mp4ff/bits"
@@ -15,84 +14,38 @@ type EsdsBox struct {
 }
 
 // CreateEsdsBox - Create an EsdsBox geiven decConfig
-func CreateEsdsBox(decConfig []byte) *EsdsBox {
-	e := &EsdsBox{
-		ESDescriptor: CreateESDescriptor(decConfig),
-	}
-	return e
-}
+func CreateEsdsBox(decConfig []byte) *EsdsBox { _ = "STUB: not implemented"; return nil }
 
 // DecodeEsds - box-specific decode
 func DecodeEsds(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	data, err := readBoxBody(r, hdr)
-	if err != nil {
-		return nil, err
-	}
-
-	sr := bits.NewFixedSliceReader(data)
-	return DecodeEsdsSR(hdr, startPos, sr)
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeEsdsSR - box-specific decode
 func DecodeEsdsSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	versionAndFlags := sr.ReadUint32()
-	version := byte(versionAndFlags >> 24)
-
-	e := &EsdsBox{
-		Version: version,
-		Flags:   versionAndFlags & flagsMask,
-	}
-	descSize := uint32(hdr.Size - 12)
-	var err error
-	e.ESDescriptor, err = DecodeESDescriptor(sr, descSize)
-	if err != nil {
-		return nil, fmt.Errorf("DecodeESDecriptor: %w", err)
-	}
-	return e, sr.AccError()
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // Type - box type
 func (e *EsdsBox) Type() string {
-	return "esds"
+	_ = "STUB: not implemented"
+
+	// Size - calculated size of box
+	return ""
 }
 
-// Size - calculated size of box
-func (e *EsdsBox) Size() uint64 {
-	return uint64(8 + 4 + e.SizeSize())
-}
+func (e *EsdsBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
 // Encode - write box to w
-func (e *EsdsBox) Encode(w io.Writer) error {
-	sw := bits.NewFixedSliceWriter(int(e.Size()))
-	err := e.EncodeSW(sw)
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(sw.Bytes())
-	return err
-}
+func (e *EsdsBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // EncodeSW - box-specific encode to slicewriter
-func (e *EsdsBox) EncodeSW(sw bits.SliceWriter) error {
-	err := EncodeHeaderSW(e, sw)
-	if err != nil {
-		return err
-	}
-	versionAndFlags := (uint32(e.Version) << 24) + e.Flags
-	sw.WriteUint32(versionAndFlags)
-	err = e.ESDescriptor.EncodeSW(sw)
-	if err != nil {
-		return err
-	}
-	return sw.AccError()
-}
+func (e *EsdsBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // Info - write box-specific information
 func (e *EsdsBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, e, int(e.Version), e.Flags)
-	err := e.ESDescriptor.Info(bd.w, specificBoxLevels, indent+indentStep, indentStep)
-	if err != nil {
-		return err
-	}
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }

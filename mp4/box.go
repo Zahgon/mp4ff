@@ -1,8 +1,6 @@
 package mp4
 
 import (
-	"encoding/binary"
-	"fmt"
 	"io"
 
 	"github.com/Eyevinn/mp4ff/bits"
@@ -178,17 +176,14 @@ func init() {
 // RemoveBoxDecoder removes the decode of boxType. It will be treated as unknown instead.
 //
 // This is a global change, so use with care.
-func RemoveBoxDecoder(boxType string) {
-	delete(decoders, boxType)
-	delete(decodersSR, boxType)
-}
+func RemoveBoxDecoder(boxType string) { _ = "STUB: not implemented"; return }
 
 // SetBoxDecoder sets decoder functions for a specific boxType.
 //
 // This is a global change, so use with care.
 func SetBoxDecoder(boxType string, dec BoxDecoder, decSR BoxDecoderSR) {
-	decoders[boxType] = dec
-	decodersSR[boxType] = decSR
+	_ = "STUB: not implemented"
+	return
 }
 
 // BoxHeader - 8 or 16 bytes depending on size
@@ -198,105 +193,39 @@ type BoxHeader struct {
 	Hdrlen int
 }
 
-func (b BoxHeader) payloadLen() int {
-	return int(b.Size) - b.Hdrlen
-}
+func (b BoxHeader) payloadLen() int { _ = "STUB: not implemented"; return 0 }
 
 // DecodeHeader decodes a box header (size + box type + possible largeSize)
 func DecodeHeader(r io.Reader) (BoxHeader, error) {
-	buf := make([]byte, boxHeaderSize)
-	n, err := io.ReadFull(r, buf)
-	if err != nil {
-		return BoxHeader{}, err
-	}
-	if n != boxHeaderSize {
-		return BoxHeader{}, fmt.Errorf("incomplete box header read: %d/%d", n, boxHeaderSize)
-	}
-	size := uint64(binary.BigEndian.Uint32(buf[0:4]))
-	headerLen := boxHeaderSize
-	switch size {
-	case 1: // size 1 means large size in next 8 bytes
-		boxType := string(buf[4:8])
-		if boxType != "mdat" {
-			return BoxHeader{}, fmt.Errorf("extended size not supported for box type %s", boxType)
-		}
-		buf := make([]byte, largeSizeLen)
-		_, err = io.ReadFull(r, buf)
-		if err != nil {
-			return BoxHeader{}, err
-		}
-		size = binary.BigEndian.Uint64(buf)
-		headerLen += largeSizeLen
-	case 0: // size 0 means to end of file
-		return BoxHeader{}, fmt.Errorf("Size 0, meaning to end of file, not supported")
-	}
-	if uint64(headerLen) > size {
-		return BoxHeader{}, fmt.Errorf("box header size %d exceeds box size %d", headerLen, size)
-	}
-	return BoxHeader{string(buf[4:8]), size, headerLen}, nil
+	_ = "STUB: not implemented"
+	return *new(BoxHeader), nil
 }
 
+// size 1 means large size in next 8 bytes
+
+// size 0 means to end of file
+
 // EncodeHeader - encode a box header to a writer
-func EncodeHeader(b Box, w io.Writer) error {
-	boxType, boxSize := b.Type(), b.Size()
-	if boxSize >= 1<<32 {
-		return fmt.Errorf("Box size %d is too big for normal 4-byte size field", boxSize)
-	}
-	buf := make([]byte, boxHeaderSize)
-	binary.BigEndian.PutUint32(buf, uint32(boxSize))
-	strtobuf(buf[4:], boxType, 4)
-	_, err := w.Write(buf)
-	return err
-}
+func EncodeHeader(b Box, w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // EncodeHeaderWithSize - encode a box header to a writer and allow for largeSize
 func EncodeHeaderWithSize(boxType string, boxSize uint64, largeSize bool, w io.Writer) error {
-	if !largeSize && boxSize >= 1<<32 {
-		return fmt.Errorf("Box size %d is too big for normal 4-byte size field", boxSize)
-	}
-	headerSize := boxHeaderSize
-	if largeSize {
-		headerSize += 8
-	}
-	buf := make([]byte, headerSize)
-	if !largeSize {
-		binary.BigEndian.PutUint32(buf, uint32(boxSize))
-		strtobuf(buf[4:], boxType, 4)
-	} else {
-		binary.BigEndian.PutUint32(buf, 1) // signals large size
-		strtobuf(buf[4:], boxType, 4)
-		binary.BigEndian.PutUint64(buf[8:], boxSize)
-	}
-	_, err := w.Write(buf)
-	return err
-}
-
-// EncodeHeaderSW - encode a box header to a SliceWriter
-func EncodeHeaderSW(b Box, sw bits.SliceWriter) error {
-	boxType, boxSize := b.Type(), b.Size()
-	if boxSize >= 1<<32 {
-		return fmt.Errorf("Box size %d is too big for normal 4-byte size field", boxSize)
-	}
-	sw.WriteUint32(uint32(boxSize))
-	sw.WriteString(boxType, false)
+	_ = "STUB: not implemented"
 	return nil
 }
 
+// signals large size
+
+// EncodeHeaderSW - encode a box header to a SliceWriter
+func EncodeHeaderSW(b Box, sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
+
 // EncodeHeaderWithSize - encode a box header to a writer and allow for largeSize
 func EncodeHeaderWithSizeSW(boxType string, boxSize uint64, largeSize bool, sw bits.SliceWriter) error {
-	if !largeSize && boxSize >= 1<<32 {
-		return fmt.Errorf("Box size %d is too big for normal 4-byte size field", boxSize)
-	}
-	if !largeSize {
-		sw.WriteUint32(uint32(boxSize))
-		sw.WriteString(boxType, false)
-	} else {
-		sw.WriteUint32(1) // signals large size
-		sw.WriteString(boxType, false)
-		sw.WriteUint64(boxSize)
-	}
-	return sw.AccError()
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// signals large size
 
 // Box is the general interface to any ISOBMFF box or similar
 type Box interface {
@@ -331,109 +260,43 @@ type BoxDecoder func(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error)
 
 // DecodeBox decodes a box
 func DecodeBox(startPos uint64, r io.Reader) (Box, error) {
-	h, err := DecodeHeader(r)
-	if err != nil {
-		return nil, err
-	}
-	return DecodeBoxBody(startPos, h, r)
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeBoxBody decodes a box body from an io.Reader given BoxHeader
 func DecodeBoxBody(startPos uint64, hdr BoxHeader, r io.Reader) (Box, error) {
-	var err error
-	var b Box
-
-	d, ok := decoders[hdr.Name]
-
-	if !ok {
-		b, err = DecodeUnknown(hdr, startPos, r)
-	} else {
-		b, err = d(hdr, startPos, r)
-	}
-	if err != nil {
-		return nil, fmt.Errorf("decode %s pos %d: %w", hdr.Name, startPos, err)
-	}
-
-	return b, nil
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeBoxLazyMdat decodes a box but doesn't read mdat into memory
 func DecodeBoxLazyMdat(startPos uint64, r io.ReadSeeker) (Box, error) {
-	h, err := DecodeHeader(r)
-	if err != nil {
-		return nil, err
-	}
-	return DecodeBoxBodyLazily(startPos, h, r)
-
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 func DecodeBoxBodyLazily(startPos uint64, h BoxHeader, r io.ReadSeeker) (Box, error) {
-	var err error
-	var b Box
-
-	d, ok := decoders[h.Name]
-
-	remainingLength := int64(h.Size) - int64(h.Hdrlen)
-
-	if !ok {
-		b, err = DecodeUnknown(h, startPos, r)
-	} else {
-		switch h.Name {
-		case "mdat":
-			b, err = DecodeMdatLazily(h, startPos)
-			if err == nil {
-				_, err = r.Seek(remainingLength, io.SeekCurrent)
-			}
-		default:
-			b, err = d(h, startPos, r)
-		}
-	}
-	if err != nil {
-		return nil, fmt.Errorf("decode box %q: %w", h.Name, err)
-	}
-
-	return b, nil
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // Fixed16 - An 8.8 fixed point number
 type Fixed16 uint16
 
-func (f Fixed16) String() string {
-	return fmt.Sprintf("%d.%d", uint16(f)>>8, uint16(f)&0xff)
-}
+func (f Fixed16) String() string { _ = "STUB: not implemented"; return "" }
 
 // Fixed32 -  A 16.16 fixed point number
 type Fixed32 uint32
 
-func (f Fixed32) String() string {
-	return fmt.Sprintf("%d.%d", uint32(f)>>16, uint32(f)&0xffff)
-}
+func (f Fixed32) String() string { _ = "STUB: not implemented"; return "" }
 
-func strtobuf(out []byte, in string, l int) {
-	if l < len(in) {
-		copy(out, in)
-	} else {
-		copy(out, in[0:l])
-	}
-}
+func strtobuf(out []byte, in string, l int) { _ = "STUB: not implemented"; return }
 
-func makebuf(b Box) []byte {
-	return make([]byte, b.Size()-boxHeaderSize)
-}
+func makebuf(b Box) []byte { _ = "STUB: not implemented"; return nil }
 
 // readBoxBody reads complete box body. Returns error if not possible
 func readBoxBody(r io.Reader, h BoxHeader) ([]byte, error) {
-	hdrLen := uint64(h.Hdrlen)
-	if hdrLen == h.Size {
-		return nil, nil
-	}
-	bodyLen := h.Size - hdrLen
-	body, err := io.ReadAll(io.LimitReader(r, int64(bodyLen)))
-	if err != nil {
-		return nil, err
-	}
-	if len(body) != int(bodyLen) {
-		return nil, fmt.Errorf("read box body length %d does not match expected length %d", len(body), bodyLen)
-	}
-	return body, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

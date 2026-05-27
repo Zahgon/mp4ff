@@ -1,9 +1,5 @@
 package iamf
 
-import (
-	"fmt"
-)
-
 /**
  * @file
  * Immersive Audio Model and Formats API header
@@ -21,20 +17,11 @@ type Rational struct {
 	Den int32
 }
 
-func MakeRational(num int32, den int32) Rational {
-	return Rational{Num: num, Den: den}
-}
+func MakeRational(num int32, den int32) Rational { _ = "STUB: not implemented"; return *new(Rational) }
 
-func (r Rational) Float64() float64 {
-	if r.Den == 0 {
-		return 0
-	}
-	return float64(r.Num) / float64(r.Den)
-}
+func (r Rational) Float64() float64 { _ = "STUB: not implemented"; return 0 }
 
-func (r Rational) String() string {
-	return fmt.Sprintf("%d/%d", r.Num, r.Den)
-}
+func (r Rational) String() string { _ = "STUB: not implemented"; return "" }
 
 // AnimationType defines the animation type for parameters
 type AnimationType uint8
@@ -45,18 +32,7 @@ const (
 	AnimationTypeBezier
 )
 
-func (a AnimationType) String() string {
-	switch a {
-	case AnimationTypeStep:
-		return "Step"
-	case AnimationTypeLinear:
-		return "Linear"
-	case AnimationTypeBezier:
-		return "Bezier"
-	default:
-		return fmt.Sprintf("Unknown(%d)", a)
-	}
-}
+func (a AnimationType) String() string { _ = "STUB: not implemented"; return "" }
 
 // MixGain represents Mix Gain Parameter Data as defined in section 3.8.1 of IAMF
 type MixGain struct {
@@ -111,18 +87,7 @@ const (
 	ParamDefinitionReconGain
 )
 
-func (p ParamDefinitionType) String() string {
-	switch p {
-	case ParamDefinitionMixGain:
-		return "MixGain"
-	case ParamDefinitionDemixing:
-		return "Demixing"
-	case ParamDefinitionReconGain:
-		return "ReconGain"
-	default:
-		return fmt.Sprintf("Unknown(%d)", p)
-	}
-}
+func (p ParamDefinitionType) String() string { _ = "STUB: not implemented"; return "" }
 
 // ParamDefinition represents Parameters as defined in section 3.6.1 of IAMF
 type ParamDefinition struct {
@@ -151,16 +116,7 @@ const (
 	AmbisonicsModeProjection
 )
 
-func (a AmbisonicsMode) String() string {
-	switch a {
-	case AmbisonicsModeMono:
-		return "Mono"
-	case AmbisonicsModeProjection:
-		return "Projection"
-	default:
-		return fmt.Sprintf("Unknown(%d)", a)
-	}
-}
+func (a AmbisonicsMode) String() string { _ = "STUB: not implemented"; return "" }
 
 // LayerFlag defines the flags for the layer
 type LayerFlag uint8
@@ -169,19 +125,7 @@ const (
 	LayerFlagReconGain LayerFlag = 1 << iota
 )
 
-func (a LayerFlag) String() string {
-	var parts []string
-	if a&LayerFlagReconGain != 0 {
-		parts = append(parts, "ReconGain")
-		parts = append(parts, " ")
-	}
-	if len(parts) == 0 {
-		return fmt.Sprintf("Unknown(%d)", a)
-	} else if len(parts) != 1 {
-		parts = parts[:len(parts)-1]
-	}
-	return fmt.Sprintf("%s", parts)
-}
+func (a LayerFlag) String() string { _ = "STUB: not implemented"; return "" }
 
 // Layer represents an audio layer within an audio element
 type Layer struct {
@@ -209,16 +153,7 @@ const (
 	AudioElementTypeScene
 )
 
-func (a AudioElementType) String() string {
-	switch a {
-	case AudioElementTypeChannel:
-		return "Channel"
-	case AudioElementTypeScene:
-		return "Scene"
-	default:
-		return fmt.Sprintf("Unknown(%d)", a)
-	}
-}
+func (a AudioElementType) String() string { _ = "STUB: not implemented"; return "" }
 
 // AudioElement represents an Audio Element as defined in section 3.6 of IAMF
 type AudioElement struct {
@@ -246,16 +181,7 @@ const (
 	HeadphonesModeBinaural
 )
 
-func (a HeadphonesMode) String() string {
-	switch a {
-	case HeadphonesModeStereo:
-		return "Stereo"
-	case HeadphonesModeBinaural:
-		return "Binaural"
-	default:
-		return fmt.Sprintf("Unknown(%d)", a)
-	}
-}
+func (a HeadphonesMode) String() string { _ = "STUB: not implemented"; return "" }
 
 // SubmixElement represents an element within a submix
 type SubmixElement struct {
@@ -279,16 +205,7 @@ const (
 	SubMixLayoutTypeBinaural     SubMixLayoutType = 3
 )
 
-func (a SubMixLayoutType) String() string {
-	switch a {
-	case SubMixLayoutTypeLoudspeakers:
-		return "Loudspeakers"
-	case SubMixLayoutTypeBinaural:
-		return "Binaural"
-	default:
-		return fmt.Sprintf("Unknown(%d)", a)
-	}
-}
+func (a SubMixLayoutType) String() string { _ = "STUB: not implemented"; return "" }
 
 // SubmixLayout represents a layout within a submix
 type SubmixLayout struct {
@@ -381,18 +298,7 @@ var obuTypeNames = map[ObuType]string{
 	ObuTypeSequenceHeader:    "IA Sequence Header",
 }
 
-func (o ObuType) String() string {
-	if name, ok := obuTypeNames[o]; ok {
-		return name
-	}
-	if o >= ObuTypeAudioFrameID0 && o <= ObuTypeAudioFrameID17 {
-		return fmt.Sprintf("Audio Frame ID%d", o-ObuTypeAudioFrameID0)
-	}
-	if o >= 24 && o <= 30 {
-		return fmt.Sprintf("Reserved OBU Type (%d)", o)
-	}
-	return fmt.Sprintf("Unknown OBU Type (%d)", o)
-}
+func (o ObuType) String() string { _ = "STUB: not implemented"; return "" }
 
 /**
  * Types were extracted from the ffmpeg implementation.
@@ -471,18 +377,7 @@ const (
 	AnchorElementAlbum
 )
 
-func (a AnchorElement) String() string {
-	switch a {
-	case AnchorElementUnknown:
-		return "Unknown"
-	case AnchorElementDialogue:
-		return "Dialogue"
-	case AnchorElementAlbum:
-		return "Album"
-	default:
-		return fmt.Sprintf("Unknown(%d)", a)
-	}
-}
+func (a AnchorElement) String() string { _ = "STUB: not implemented"; return "" }
 
 // SoundSystem represents IAMF sound system configuration
 type SoundSystem int
@@ -504,40 +399,7 @@ const (
 	SoundSystem13_9_1_6                    // Subset of Loudspeaker configuration for Sound System H
 )
 
-func (a SoundSystem) String() string {
-	switch a {
-	case SoundSystemA_0_2_0:
-		return "Sound System A (0.2.0)"
-	case SoundSystemB_0_5_0:
-		return "Sound System B (0.5.0)"
-	case SoundSystemC_2_5_0:
-		return "Sound System C (2.5.0)"
-	case SoundSystemD_4_5_0:
-		return "Sound System D (4.5.0)"
-	case SoundSystemE_4_5_1:
-		return "Sound System E (4.5.1)"
-	case SoundSystemF_3_7_0:
-		return "Sound System F (3.7.0)"
-	case SoundSystemG_4_9_0:
-		return "Sound System G (4.9.0)"
-	case SoundSystemH_9_10_3:
-		return "Sound System H (9.10.3)"
-	case SoundSystemI_0_7_0:
-		return "Sound System I (0.7.0)"
-	case SoundSystemJ_4_7_0:
-		return "Sound System J (4.7.0)"
-	case SoundSystem10_2_7_0:
-		return "Sound System I + Ltf + Rtf (10.2.7.0)"
-	case SoundSystem11_2_3_0:
-		return "Sound System J Front Subset (11.2.3.0)"
-	case SoundSystem12_0_1_0:
-		return "Mono (12.0.1.0)"
-	case SoundSystem13_9_1_6:
-		return "Sound System H Subset (13.9.1.6)"
-	default:
-		return fmt.Sprintf("Unknown(%d)", a)
-	}
-}
+func (a SoundSystem) String() string { _ = "STUB: not implemented"; return "" }
 
 type SoundSystemMap struct {
 	Id     SoundSystem
@@ -554,9 +416,7 @@ type ObuInfo struct {
 	Type  ObuType
 }
 
-func (o ObuInfo) PayloadSize() int {
-	return int(o.Size) - o.Start
-}
+func (o ObuInfo) PayloadSize() int { _ = "STUB: not implemented"; return 0 }
 
 // ChannelLayout represents a channel layout/configuration
 type ChannelLayout struct {
@@ -570,12 +430,7 @@ type ChannelLayout struct {
 	ChannelMap map[string]string
 }
 
-func (c ChannelLayout) String() string {
-	if c.Description != "" {
-		return c.Description
-	}
-	return fmt.Sprintf("%d channels (mask: 0x%X)", c.NumChannels, c.ChannelMask)
-}
+func (c ChannelLayout) String() string { _ = "STUB: not implemented"; return "" }
 
 type CodecParameters struct {
 	Ptr *IamfCodecConfig

@@ -1,7 +1,6 @@
 package mp4
 
 import (
-	"fmt"
 	"io"
 
 	"github.com/Eyevinn/mp4ff/bits"
@@ -23,158 +22,68 @@ type MoovBox struct {
 
 // NewMoovBox - Generate a new empty moov box
 func NewMoovBox() *MoovBox {
-	return &MoovBox{}
+	_ = "STUB: not implemented"
+
+	// AddChild - Add a child box
+	return nil
 }
 
-// AddChild - Add a child box
-func (m *MoovBox) AddChild(child Box) {
-	switch box := child.(type) {
-	case *MvhdBox:
-		m.Mvhd = box
-	case *TrakBox:
-		if m.Trak == nil {
-			m.Trak = box
-		}
-		m.Traks = append(m.Traks, box)
-		// Possibly re-order to keep traks together on same
-		// side of mvex or similar. Put this trak box after last previous trak
-		lastTrakIdx := 0
-		for i, child := range m.Children {
-			if child.Type() == "trak" {
-				lastTrakIdx = i
-			}
-		}
-		if lastTrakIdx != 0 && lastTrakIdx != len(m.Children)-1 { // last one in middle
-			m.Children = append(m.Children[:lastTrakIdx+2], m.Children[lastTrakIdx+1:]...)
-			m.Children[lastTrakIdx+1] = box
-			return
-		}
-	case *MvexBox:
-		m.Mvex = box
-	case *PsshBox:
-		if m.Pssh == nil {
-			m.Pssh = box
-		}
-		m.Psshs = append(m.Psshs, box)
-	}
-	m.Children = append(m.Children, child)
-}
+func (m *MoovBox) AddChild(child Box) { _ = "STUB: not implemented"; return }
+
+// Possibly re-order to keep traks together on same
+// side of mvex or similar. Put this trak box after last previous trak
+
+// last one in middle
 
 // DecodeMoov - box-specific decode
 func DecodeMoov(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	data, err := io.ReadAll(io.LimitReader(r, int64(hdr.payloadLen())))
-	if err != nil {
-		return nil, err
-	}
-	if len(data) != int(hdr.payloadLen()) {
-		return nil, fmt.Errorf("moov: expected %d bytes, got %d", hdr.payloadLen(), len(data))
-	}
-	sr := bits.NewFixedSliceReader(data)
-	children, err := DecodeContainerChildrenSR(hdr, startPos+8, startPos+hdr.Size, sr)
-	if err != nil {
-		return nil, err
-	}
-	m := MoovBox{Children: make([]Box, 0, len(children))}
-	m.StartPos = startPos
-	for _, c := range children {
-		m.AddChild(c)
-	}
-	return &m, err
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeMoovSR - box-specific decode
 func DecodeMoovSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	children, err := DecodeContainerChildrenSR(hdr, startPos+8, startPos+hdr.Size, sr)
-	if err != nil {
-		return nil, err
-	}
-	m := MoovBox{Children: make([]Box, 0, len(children))}
-	m.StartPos = startPos
-	for _, c := range children {
-		m.AddChild(c)
-	}
-	return &m, err
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // Type - box type
 func (m *MoovBox) Type() string {
-	return "moov"
+	_ = "STUB: not implemented"
+
+	// Size - calculated size of box
+	return ""
 }
 
-// Size - calculated size of box
-func (m *MoovBox) Size() uint64 {
-	return containerSize(m.Children)
-}
+func (m *MoovBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
 // GetChildren - list of child boxes
 func (m *MoovBox) GetChildren() []Box {
-	return m.Children
-}
+	_ = "STUB: not implemented"
 
-// Encode - write moov container to w
-func (m *MoovBox) Encode(w io.Writer) error {
-	return EncodeContainer(m, w)
-}
-
-// Encode - write moov container to sw
-func (m *MoovBox) EncodeSW(sw bits.SliceWriter) error {
-	return EncodeContainerSW(m, sw)
-}
-
-// Info - write box-specific information
-func (m *MoovBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	return ContainerInfo(m, w, specificBoxLevels, indent, indentStep)
-}
-
-// RemovePsshs - remove and return all psshs children boxes
-func (m *MoovBox) RemovePsshs() []*PsshBox {
-	if m.Pssh == nil {
-		return nil
-	}
-	psshs := m.Psshs
-	newChildren := make([]Box, 0, len(m.Children)-len(m.Psshs))
-	for i := range m.Children {
-		if m.Children[i].Type() != "pssh" {
-			newChildren = append(newChildren, m.Children[i])
-		}
-	}
-	m.Children = newChildren
-	m.Pssh = nil
-	m.Psshs = nil
-
-	return psshs
-}
-
-func (m *MoovBox) GetSinf(trackID uint32) *SinfBox {
-	for _, trak := range m.Traks {
-		if trak.Tkhd.TrackID == trackID {
-			stsd := trak.Mdia.Minf.Stbl.Stsd
-			sd := stsd.Children[0] // Get first (and only)
-			switch box := sd.(type) {
-			case *VisualSampleEntryBox:
-				return box.Sinf
-			case *AudioSampleEntryBox:
-				return box.Sinf
-			}
-		}
-	}
+	// Encode - write moov container to w
 	return nil
 }
 
-// IsEncrypted returns true if SampleEntryBox is "encv" or "enca"
-func (m *MoovBox) IsEncrypted(trackID uint32) bool {
-	for _, trak := range m.Traks {
-		if trak.Tkhd.TrackID == trackID {
-			stsd := trak.Mdia.Minf.Stbl.Stsd
-			sd := stsd.Children[0] // Get first (and only)
-			switch box := sd.(type) {
-			case *VisualSampleEntryBox:
-				return box.Type() == "encv"
-			case *AudioSampleEntryBox:
-				return box.Type() == "enca"
-			}
-		}
-	}
-	return false
+func (m *MoovBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
+// Encode - write moov container to sw
+func (m *MoovBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
+
+// Info - write box-specific information
+func (m *MoovBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// RemovePsshs - remove and return all psshs children boxes
+func (m *MoovBox) RemovePsshs() []*PsshBox { _ = "STUB: not implemented"; return nil }
+
+func (m *MoovBox) GetSinf(trackID uint32) *SinfBox { _ = "STUB: not implemented"; return nil }
+
+// Get first (and only)
+
+// IsEncrypted returns true if SampleEntryBox is "encv" or "enca"
+func (m *MoovBox) IsEncrypted(trackID uint32) bool { _ = "STUB: not implemented"; return false }
+
+// Get first (and only)

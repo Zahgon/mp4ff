@@ -30,185 +30,62 @@ type TfhdBox struct {
 
 // DecodeTfhd - box-specific decode
 func DecodeTfhd(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	data, err := readBoxBody(r, hdr)
-	if err != nil {
-		return nil, err
-	}
-
-	sr := bits.NewFixedSliceReader(data)
-	return DecodeTfhdSR(hdr, startPos, sr)
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeTfhdSR - box-specific decode
 func DecodeTfhdSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	versionAndFlags := sr.ReadUint32()
-	version := byte(versionAndFlags >> 24)
-	flags := versionAndFlags & flagsMask
-
-	t := &TfhdBox{
-		Version: version,
-		Flags:   flags,
-		TrackID: sr.ReadUint32(),
-	}
-
-	if t.HasBaseDataOffset() {
-		t.BaseDataOffset = sr.ReadUint64()
-	}
-	if t.HasSampleDescriptionIndex() {
-		t.SampleDescriptionIndex = sr.ReadUint32()
-	}
-	if t.HasDefaultSampleDuration() {
-		t.DefaultSampleDuration = sr.ReadUint32()
-	}
-	if t.HasDefaultSampleSize() {
-		t.DefaultSampleSize = sr.ReadUint32()
-	}
-	if t.HasDefaultSampleFlags() {
-		t.DefaultSampleFlags = sr.ReadUint32()
-	}
-
-	return t, sr.AccError()
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // CreateTfhd - Create a new TfdtBox with baseMediaDecodeTime
 func CreateTfhd(trackID uint32) *TfhdBox {
+	_ = "STUB: not implemented"
 	// The only flag set is defaultBaseIsMoof
-	tfhd := &TfhdBox{
-		Version:                0,
-		Flags:                  TfhdDefaultBaseIsMoofFlag,
-		TrackID:                trackID,
-		BaseDataOffset:         0,
-		SampleDescriptionIndex: 1,
-		DefaultSampleDuration:  0,
-		DefaultSampleSize:      0,
-		DefaultSampleFlags:     0,
-	}
-	return tfhd
+	return nil
 }
 
 // HasBaseDataOffset - interpreted flags value
-func (t *TfhdBox) HasBaseDataOffset() bool {
-	return t.Flags&TfhdBaseDataOffsetPresentFlag != 0
-}
+func (t *TfhdBox) HasBaseDataOffset() bool { _ = "STUB: not implemented"; return false }
 
 // HasSampleDescriptionIndex - interpreted flags value
-func (t *TfhdBox) HasSampleDescriptionIndex() bool {
-	return t.Flags&TfhdSampleDescriptionIndexPresentFlag != 0
-}
+func (t *TfhdBox) HasSampleDescriptionIndex() bool { _ = "STUB: not implemented"; return false }
 
 // HasDefaultSampleDuration - interpreted flags value
-func (t *TfhdBox) HasDefaultSampleDuration() bool {
-	return t.Flags&TfhdDefaultSampleDurationPresentFlag != 0
-}
+func (t *TfhdBox) HasDefaultSampleDuration() bool { _ = "STUB: not implemented"; return false }
 
 // HasDefaultSampleSize - interpreted flags value
-func (t *TfhdBox) HasDefaultSampleSize() bool {
-	return t.Flags&TfhdDefaultSampleSizePresentFlag != 0
-}
+func (t *TfhdBox) HasDefaultSampleSize() bool { _ = "STUB: not implemented"; return false }
 
 // HasDefaultSampleFlags - interpreted flags value
-func (t *TfhdBox) HasDefaultSampleFlags() bool {
-	return t.Flags&TfhdDefaultSampleFlagsPresentFlag != 0
-}
+func (t *TfhdBox) HasDefaultSampleFlags() bool { _ = "STUB: not implemented"; return false }
 
 // DurationIsEmpty - interpreted flags value
-func (t *TfhdBox) DurationIsEmpty() bool {
-	return t.Flags&TfhdDurationIsEmptyFlag != 0
-}
+func (t *TfhdBox) DurationIsEmpty() bool { _ = "STUB: not implemented"; return false }
 
 // DefaultBaseIfMoof - interpreted flags value
-func (t *TfhdBox) DefaultBaseIfMoof() bool {
-	return t.Flags&TfhdDefaultBaseIsMoofFlag != 0
-}
+func (t *TfhdBox) DefaultBaseIfMoof() bool { _ = "STUB: not implemented"; return false }
 
 // Type - returns box type
 func (t *TfhdBox) Type() string {
-	return "tfhd"
+	_ = "STUB: not implemented"
+
+	// Size - returns calculated size
+	return ""
 }
 
-// Size - returns calculated size
-func (t *TfhdBox) Size() uint64 {
-	sz := boxHeaderSize + 8
-	if t.HasBaseDataOffset() {
-		sz += 8
-	}
-	if t.HasSampleDescriptionIndex() {
-		sz += 4
-	}
-	if t.HasDefaultSampleDuration() {
-		sz += 4
-	}
-	if t.HasDefaultSampleSize() {
-		sz += 4
-	}
-	if t.HasDefaultSampleFlags() {
-		sz += 4
-	}
-	return uint64(sz)
-}
+func (t *TfhdBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
 // Encode - write box to w
-func (t *TfhdBox) Encode(w io.Writer) error {
-	sw := bits.NewFixedSliceWriter(int(t.Size()))
-	err := t.EncodeSW(sw)
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(sw.Bytes())
-	return err
-}
+func (t *TfhdBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // EncodeSW - box-specific encode to slicewriter
-func (t *TfhdBox) EncodeSW(sw bits.SliceWriter) error {
-	err := EncodeHeaderSW(t, sw)
-	if err != nil {
-		return err
-	}
-	versionAndFlags := (uint32(t.Version) << 24) + t.Flags
-	sw.WriteUint32(versionAndFlags)
-	sw.WriteUint32(t.TrackID)
-	if t.HasBaseDataOffset() {
-		sw.WriteUint64(t.BaseDataOffset)
-	}
-	if t.HasSampleDescriptionIndex() {
-		sw.WriteUint32(t.SampleDescriptionIndex)
-	}
-	if t.HasDefaultSampleDuration() {
-		sw.WriteUint32(t.DefaultSampleDuration)
-	}
-	if t.HasDefaultSampleSize() {
-		sw.WriteUint32(t.DefaultSampleSize)
-	}
-	if t.HasDefaultSampleFlags() {
-		sw.WriteUint32(t.DefaultSampleFlags)
-	}
-	return sw.AccError()
-}
+func (t *TfhdBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // Info - write specific box information
 func (t *TfhdBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, t, int(t.Version), t.Flags)
-	bd.write(" - trackID: %d", t.TrackID)
-
-	if t.Flags&TfhdDefaultBaseIsMoofFlag != 0 {
-		bd.write(" - defaultBaseIsMoof: true")
-	}
-
-	if t.HasBaseDataOffset() {
-		bd.write(" - baseDataOffset=%d", t.BaseDataOffset)
-	}
-	if t.HasSampleDescriptionIndex() {
-		bd.write(" - sampleDescriptionIndex: %d", t.SampleDescriptionIndex)
-	}
-	if t.HasDefaultSampleDuration() {
-		bd.write(" - defaultSampleDuration: %d", t.DefaultSampleDuration)
-	}
-	if t.HasDefaultSampleSize() {
-		bd.write(" - defaultSampleSize: %d", t.DefaultSampleSize)
-	}
-	if t.HasDefaultSampleFlags() {
-		bd.write(" - defaultSampleFlags: %08x (%s)", t.DefaultSampleFlags, DecodeSampleFlags(t.DefaultSampleFlags))
-
-	}
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }

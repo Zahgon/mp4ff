@@ -1,7 +1,6 @@
 package mp4
 
 import (
-	"fmt"
 	"io"
 
 	"github.com/Eyevinn/mp4ff/bits"
@@ -13,64 +12,47 @@ type TrefBox struct {
 }
 
 // AddChild - Add a child box
-func (b *TrefBox) AddChild(box Box) {
-	b.Children = append(b.Children, box)
-}
+func (b *TrefBox) AddChild(box Box) { _ = "STUB: not implemented"; return }
 
 // DecodeTref - box-specific decode
 func DecodeTref(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	children, err := DecodeContainerChildren(hdr, startPos+8, startPos+hdr.Size, r)
-	if err != nil {
-		return nil, err
-	}
-	b := TrefBox{}
-	for _, c := range children {
-		b.AddChild(c)
-	}
-	return &b, nil
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeTrefSR - box-specific decode
 func DecodeTrefSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	children, err := DecodeContainerChildrenSR(hdr, startPos+8, startPos+hdr.Size, sr)
-	if err != nil {
-		return nil, err
-	}
-	b := TrefBox{}
-	for _, c := range children {
-		b.AddChild(c)
-	}
-	return &b, nil
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // Type - box type
 func (b *TrefBox) Type() string {
-	return "tref"
+	_ = "STUB: not implemented"
+
+	// Size - calculated size of box
+	return ""
 }
 
-// Size - calculated size of box
-func (b *TrefBox) Size() uint64 {
-	return containerSize(b.Children)
-}
+func (b *TrefBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
 // GetChildren - list of child boxes
 func (b *TrefBox) GetChildren() []Box {
-	return b.Children
+	_ = "STUB: not implemented"
+
+	// Encode - write minf container to w
+	return nil
 }
 
-// Encode - write minf container to w
-func (b *TrefBox) Encode(w io.Writer) error {
-	return EncodeContainer(b, w)
-}
+func (b *TrefBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // Encode - write minf container to sw
-func (b *TrefBox) EncodeSW(sw bits.SliceWriter) error {
-	return EncodeContainerSW(b, sw)
-}
+func (b *TrefBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // Info - write box-specific information
 func (b *TrefBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	return ContainerInfo(b, w, specificBoxLevels, indent, indentStep)
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // TrefTypeBox - TrackReferenceTypeBox - ISO/IEC 14496-12 Ed. 9 Sec. 8.3
@@ -83,67 +65,34 @@ type TrefTypeBox struct {
 
 // DecodeTrefType - box-specific decode
 func DecodeTrefType(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	data, err := readBoxBody(r, hdr)
-	if err != nil {
-		return nil, err
-	}
-	sr := bits.NewFixedSliceReader(data)
-	return DecodeTrefTypeSR(hdr, startPos, sr)
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeTrefTypeSR - box-specific decode
 func DecodeTrefTypeSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	nrIds := hdr.payloadLen() / 4
-	b := TrefTypeBox{
-		Name:     hdr.Name,
-		TrackIDs: make([]uint32, nrIds),
-	}
-	for i := 0; i < nrIds; i++ {
-		b.TrackIDs[i] = sr.ReadUint32()
-	}
-	return &b, sr.AccError()
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // Type - box type
 func (b *TrefTypeBox) Type() string {
-	return b.Name
+	_ = "STUB: not implemented"
+
+	// Size - calculated size of box
+	return ""
 }
 
-// Size - calculated size of box
-func (b *TrefTypeBox) Size() uint64 {
-	return uint64(boxHeaderSize + len(b.TrackIDs)*4)
-}
+func (b *TrefTypeBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
 // Encode - write box to w
-func (t *TrefTypeBox) Encode(w io.Writer) error {
-	sw := bits.NewFixedSliceWriter(int(t.Size()))
-	err := t.EncodeSW(sw)
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(sw.Bytes())
-	return err
-}
+func (t *TrefTypeBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // Encode - write box to sw
-func (b *TrefTypeBox) EncodeSW(sw bits.SliceWriter) error {
-	err := EncodeHeaderSW(b, sw)
-	if err != nil {
-		return err
-	}
-	for _, trackID := range b.TrackIDs {
-		sw.WriteUint32(trackID)
-	}
-	return sw.AccError()
-}
+func (b *TrefTypeBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // Info - write box-specific information
 func (b *TrefTypeBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, b, -1, 0)
-	msg := " - trackIDs: "
-	for _, trackID := range b.TrackIDs {
-		msg += fmt.Sprintf(" %d", trackID)
-	}
-	bd.write(msg)
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }

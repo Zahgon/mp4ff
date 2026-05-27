@@ -17,67 +17,44 @@ type LudtBox struct {
 
 // DecodeLudt - box-specific decode
 func DecodeLudt(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	children, err := DecodeContainerChildren(hdr, startPos+8, startPos+hdr.Size, r)
-	if err != nil {
-		return nil, err
-	}
-	b := &LudtBox{}
-	for _, c := range children {
-		b.AddChild(c)
-	}
-	return b, nil
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeLudtSR - box-specific decode
 func DecodeLudtSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	children, err := DecodeContainerChildrenSR(hdr, startPos+8, startPos+hdr.Size, sr)
-	if err != nil {
-		return nil, err
-	}
-	b := &LudtBox{}
-	for _, c := range children {
-		b.AddChild(c)
-	}
-	return b, nil
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // AddChild - add child box
-func (b *LudtBox) AddChild(child Box) {
-	switch boxType := child.Type(); boxType {
-	case "tlou":
-		b.Loudness = append(b.Loudness, child.(*LoudnessBaseBox))
-	case "alou":
-		b.AlbumLoudness = append(b.AlbumLoudness, child.(*LoudnessBaseBox))
-	}
-	b.Children = append(b.Children, child)
-}
+func (b *LudtBox) AddChild(child Box) { _ = "STUB: not implemented"; return }
 
 // Size - calculated size of box
-func (b *LudtBox) Size() uint64 {
-	return containerSize(b.Children)
-}
+func (b *LudtBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
 // Type - return box type
 func (b *LudtBox) Type() string {
-	return "ludt"
+	_ = "STUB: not implemented"
+
+	// Encode - write ludt container to w
+	return ""
 }
 
-// Encode - write ludt container to w
-func (b *LudtBox) Encode(w io.Writer) error {
-	return EncodeContainer(b, w)
-}
+func (b *LudtBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // Encode - write ludt container to sw
-func (b *LudtBox) EncodeSW(sw bits.SliceWriter) error {
-	return EncodeContainerSW(b, sw)
-}
+func (b *LudtBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // GetChildren - list of child boxes
 func (b *LudtBox) GetChildren() []Box {
-	return b.Children
+	_ = "STUB: not implemented"
+
+	// Info - write box-specific information
+	return nil
 }
 
-// Info - write box-specific information
 func (b *LudtBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	return ContainerInfo(b, w, specificBoxLevels, indent, indentStep)
+	_ = "STUB: not implemented"
+	return nil
 }

@@ -1,7 +1,6 @@
 package mp4
 
 import (
-	"fmt"
 	"io"
 
 	"github.com/Eyevinn/mp4ff/bits"
@@ -34,173 +33,60 @@ type StscEntry struct {
 
 // DecodeStsc - box-specific decode
 func DecodeStsc(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	data, err := readBoxBody(r, hdr)
-	if err != nil {
-		return nil, err
-	}
-	sr := bits.NewFixedSliceReader(data)
-	return DecodeStscSR(hdr, startPos, sr)
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeStscSR - box-specific decode
 func DecodeStscSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	versionAndFlags := sr.ReadUint32()
-	entryCount := sr.ReadUint32()
-	b := StscBox{
-		Version: byte(versionAndFlags >> 24),
-		Flags:   versionAndFlags & flagsMask,
-	}
-	if hdr.Size != b.expectedSize(int(entryCount)) {
-		return nil, fmt.Errorf("invalid stsc box size")
-	}
-
-	b.Entries = make([]StscEntry, entryCount)
-
-	var accSampleNr uint32 = 1
-
-	for i := 0; i < int(entryCount); i++ {
-		b.Entries[i].FirstChunk = sr.ReadUint32()
-		b.Entries[i].SamplesPerChunk = sr.ReadUint32()
-		if i > 0 {
-			accSampleNr += (b.Entries[i].FirstChunk - b.Entries[i-1].FirstChunk) * b.Entries[i-1].SamplesPerChunk
-		}
-		b.Entries[i].FirstSampleNr = accSampleNr
-
-		sdi := sr.ReadUint32()
-		if sdi == 0 {
-			return nil, fmt.Errorf("stsc sample description id is 0")
-		}
-		if i == 0 {
-			b.singleSampleDescriptionID = sdi
-		} else {
-			if sdi != b.singleSampleDescriptionID {
-				if b.singleSampleDescriptionID != 0 {
-					b.SampleDescriptionID = make([]uint32, entryCount)
-					for j := 0; j < i; j++ {
-						b.SampleDescriptionID[j] = b.singleSampleDescriptionID
-					}
-					b.singleSampleDescriptionID = 0
-				}
-				b.SampleDescriptionID[i] = sdi
-			}
-		}
-	}
-	return &b, nil
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // Type box-specific type
 func (b *StscBox) Type() string {
-	return "stsc"
+	_ = "STUB: not implemented"
+
+	// Size - box-specific size
+	return ""
 }
 
-// Size - box-specific size
-func (b *StscBox) Size() uint64 {
-	return b.expectedSize(len(b.Entries))
-}
+func (b *StscBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
-func (b *StscBox) expectedSize(nrEntries int) uint64 {
-	return uint64(boxHeaderSize + 8 + nrEntries*12)
-}
+func (b *StscBox) expectedSize(nrEntries int) uint64 { _ = "STUB: not implemented"; return 0 }
 
 // Encode - write box to w
-func (b *StscBox) Encode(w io.Writer) error {
-	sw := bits.NewFixedSliceWriter(int(b.Size()))
-	err := b.EncodeSW(sw)
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(sw.Bytes())
-	return err
-}
+func (b *StscBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // EncodeSW - box-specific encode to slicewriter
-func (b *StscBox) EncodeSW(sw bits.SliceWriter) error {
-	err := EncodeHeaderSW(b, sw)
-	if err != nil {
-		return err
-	}
-	versionAndFlags := (uint32(b.Version) << 24) + b.Flags
-	sw.WriteUint32(versionAndFlags)
-	sw.WriteUint32(uint32(len(b.Entries)))
-	for i := range b.Entries {
-		sw.WriteUint32(b.Entries[i].FirstChunk)
-		sw.WriteUint32(b.Entries[i].SamplesPerChunk)
-		if b.singleSampleDescriptionID != 0 {
-			sw.WriteUint32(b.singleSampleDescriptionID)
-		} else {
-			sw.WriteUint32(b.SampleDescriptionID[i])
-		}
-	}
-	return sw.AccError()
-}
+func (b *StscBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // Info - write specific box info to w
 func (b *StscBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, b, int(b.Version), b.Flags)
-	if len(b.Entries) > 0 {
-		bd.write(" - entryCount: %d", len(b.Entries))
-	}
-	level := getInfoLevel(b, specificBoxLevels)
-	if level >= 1 {
-		for i := range b.Entries {
-			bd.write(" - entry[%d]: firstChunk=%d samplesPerChunk=%d sampleDescriptionID=%d",
-				i+1, b.Entries[i].FirstChunk, b.Entries[i].SamplesPerChunk, b.GetSampleDescriptionID(i+1))
-		}
-	}
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // AddEntry adds a new entry and calculates helper values.
 func (b *StscBox) AddEntry(firstChunk, samplesPerChunk, sampleDescriptionID uint32) error {
-	switch {
-	case len(b.Entries) == 0:
-		if firstChunk != 1 {
-			return fmt.Errorf("first stsc entry does not have firstChunk == 1, but %d", firstChunk)
-		}
-		b.Entries = append(b.Entries, StscEntry{firstChunk, samplesPerChunk, 1})
-		b.singleSampleDescriptionID = sampleDescriptionID
-	default:
-		nrEntries := len(b.Entries)
-		if sampleDescriptionID != b.singleSampleDescriptionID {
-			if b.singleSampleDescriptionID != 0 {
-				b.SampleDescriptionID = make([]uint32, nrEntries)
-				for i := 0; i < nrEntries; i++ {
-					b.SampleDescriptionID[i] = b.singleSampleDescriptionID
-				}
-				b.singleSampleDescriptionID = 0
-			}
-			b.SampleDescriptionID = append(b.SampleDescriptionID, sampleDescriptionID)
-		}
-		lastEntry := b.Entries[len(b.Entries)-1]
-		firstSampleNr := lastEntry.FirstSampleNr + (firstChunk-lastEntry.FirstChunk)*lastEntry.SamplesPerChunk
-		b.Entries = append(b.Entries, StscEntry{firstChunk, samplesPerChunk, firstSampleNr})
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // GetSampleDescriptionID returns the sample description ID from common or individual values for chunk.
 // chunkNr is 1-based.
-func (b *StscBox) GetSampleDescriptionID(chunkNr int) uint32 {
-	if b.singleSampleDescriptionID != 0 {
-		return b.singleSampleDescriptionID
-	}
-	return b.SampleDescriptionID[chunkNr-1]
-}
+func (b *StscBox) GetSampleDescriptionID(chunkNr int) uint32 { _ = "STUB: not implemented"; return 0 }
 
 // SetSingleSampleDescriptionID - use this for efficiency if all samples have same sample description
 func (b *StscBox) SetSingleSampleDescriptionID(sampleDescriptionID uint32) {
-	b.singleSampleDescriptionID = sampleDescriptionID
-	b.SampleDescriptionID = nil
+	_ = "STUB: not implemented"
+	return
 }
 
 // ChunkNrFromSampleNr - get chunk number from sampleNr (one-based)
 func (b *StscBox) ChunkNrFromSampleNr(sampleNr int) (chunkNr, firstSampleInChunk int, err error) {
-	entryNr := b.FindEntryNrForSampleNr(uint32(sampleNr), 0)
-	entry := b.Entries[entryNr]
-	nrInEntry := (uint32(sampleNr) - entry.FirstSampleNr) / entry.SamplesPerChunk
-	chunkNr = int(entry.FirstChunk + nrInEntry)
-	firstSampleInChunk = int(entry.FirstSampleNr + nrInEntry*entry.SamplesPerChunk)
-	return chunkNr, firstSampleInChunk, nil
+	_ = "STUB: not implemented"
+	return 0, 0, nil
 }
 
 // Chunk defines a chunk with number, starting sampleNr and nrSamples.
@@ -213,83 +99,30 @@ type Chunk struct {
 // GetContainingChunks returns chunks containing the sample interval including endSampleNr.
 // startSampleNr and endSampleNr are 1-based.
 func (b *StscBox) GetContainingChunks(startSampleNr, endSampleNr uint32) ([]Chunk, error) {
-	if startSampleNr == 0 || endSampleNr < startSampleNr {
-		return nil, fmt.Errorf("bad sample interval %d-%d", startSampleNr, endSampleNr)
-	}
-	nrEntries := uint32(len(b.Entries))
-
-	startEntryNr := b.FindEntryNrForSampleNr(startSampleNr, 0)
-	endEntryNr := b.FindEntryNrForSampleNr(endSampleNr, startEntryNr)
-
-	startEntry := b.Entries[startEntryNr]
-	endEntry := b.Entries[endEntryNr]
-	startChunkNr := (startSampleNr-startEntry.FirstSampleNr)/startEntry.SamplesPerChunk + startEntry.FirstChunk
-	endChunkNr := (endSampleNr-endEntry.FirstSampleNr)/endEntry.SamplesPerChunk + endEntry.FirstChunk
-
-	chunks := make([]Chunk, 0, endChunkNr-startChunkNr+1)
-
-	entryNr := startEntryNr
-	entry := b.Entries[entryNr]
-	for chunkNr := startChunkNr; chunkNr <= endChunkNr; chunkNr++ {
-		chunk := Chunk{chunkNr, entry.FirstSampleNr + (chunkNr-entry.FirstChunk)*entry.SamplesPerChunk, entry.SamplesPerChunk}
-		chunks = append(chunks, chunk)
-		if entryNr < nrEntries-1 {
-			if chunkNr+1 == b.Entries[entryNr+1].FirstChunk {
-				entryNr++
-				entry = b.Entries[entryNr]
-			}
-		}
-	}
-	return chunks, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
 
 // GetChunk returns chunk for chunkNr (one-based).
-func (b *StscBox) GetChunk(chunkNr uint32) Chunk {
-	if chunkNr == 0 {
-		panic("ChunkNr set to 0 but is one-based")
-	}
-	chunk := Chunk{
-		ChunkNr:       chunkNr,
-		StartSampleNr: 1,
-		NrSamples:     0,
-	}
-	entryNr := b.findEntryNrForChunkNr(chunkNr)
-	entry := b.Entries[entryNr]
-	chunk.NrSamples = entry.SamplesPerChunk
-	chunk.StartSampleNr = (chunkNr-entry.FirstChunk)*entry.SamplesPerChunk + entry.FirstSampleNr
-	return chunk
-}
+func (b *StscBox) GetChunk(chunkNr uint32) Chunk { _ = "STUB: not implemented"; return *new(Chunk) }
 
 // findEntryNrForChunkNr returns the entry where chunkNr belongs.
 // The resulting entryNr is 0-based index.
 func (b *StscBox) findEntryNrForChunkNr(chunkNr uint32) uint32 {
+	_ = "STUB: not implemented"
 	// The following is essentially the sort.Search() code specialized to this case
-	low, high := 0, len(b.Entries)
-	for low < high {
-		mid := int(uint(low+high) >> 1) // avoid overflow when computing h
-		// low ≤ mid < high
-		if b.Entries[mid].FirstChunk > chunkNr {
-			high = mid
-		} else {
-			low = mid + 1
-		}
-	}
-	return uint32(low - 1)
+	return 0
 }
+
+// avoid overflow when computing h
+// low ≤ mid < high
 
 // FindEntryNrForSampleNr returns the entry where sampleNr belongs. lowEntryIdx is entry index (zero-based).
 // The resulting entryNr is 0-based index.
 func (b *StscBox) FindEntryNrForSampleNr(sampleNr, lowEntryIdx uint32) uint32 {
+	_ = "STUB: not implemented"
 	// The following is essentially the sort.Search() code specialized to this case
-	low, high := lowEntryIdx, uint32(len(b.Entries))
-	for low < high {
-		mid := uint32(uint(low)+uint(high)) >> 1
-		// low ≤ mid < high
-		if b.Entries[mid].FirstSampleNr > sampleNr {
-			high = mid
-		} else {
-			low = mid + 1
-		}
-	}
-	return low - 1
+	return 0
 }
+
+// low ≤ mid < high

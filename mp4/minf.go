@@ -20,78 +20,51 @@ type MinfBox struct {
 
 // NewMinfBox - Generate a new empty minf box
 func NewMinfBox() *MinfBox {
-	return &MinfBox{}
+	_ = "STUB: not implemented"
+
+	// AddChild - Add a child box
+	return nil
 }
 
-// AddChild - Add a child box
-func (m *MinfBox) AddChild(child Box) {
-	switch box := child.(type) {
-	case *VmhdBox:
-		m.Vmhd = box
-	case *SmhdBox:
-		m.Smhd = box
-	case *SthdBox:
-		m.Sthd = box
-	case *DinfBox:
-		m.Dinf = box
-	case *StblBox:
-		m.Stbl = box
-	}
-	m.Children = append(m.Children, child)
-}
+func (m *MinfBox) AddChild(child Box) { _ = "STUB: not implemented"; return }
 
 // DecodeMinf - box-specific decode
 func DecodeMinf(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	children, err := DecodeContainerChildren(hdr, startPos+8, startPos+hdr.Size, r)
-	if err != nil {
-		return nil, err
-	}
-	m := NewMinfBox()
-	for _, c := range children {
-		m.AddChild(c)
-	}
-	return m, nil
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeMinfSR - box-specific decode
 func DecodeMinfSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	children, err := DecodeContainerChildrenSR(hdr, startPos+8, startPos+hdr.Size, sr)
-	if err != nil {
-		return nil, err
-	}
-	m := NewMinfBox()
-	for _, c := range children {
-		m.AddChild(c)
-	}
-	return m, nil
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // Type - box type
 func (m *MinfBox) Type() string {
-	return "minf"
+	_ = "STUB: not implemented"
+
+	// Size - calculated size of box
+	return ""
 }
 
-// Size - calculated size of box
-func (m *MinfBox) Size() uint64 {
-	return containerSize(m.Children)
-}
+func (m *MinfBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
 // GetChildren - list of child boxes
 func (m *MinfBox) GetChildren() []Box {
-	return m.Children
+	_ = "STUB: not implemented"
+
+	// Encode - write minf container to w
+	return nil
 }
 
-// Encode - write minf container to w
-func (m *MinfBox) Encode(w io.Writer) error {
-	return EncodeContainer(m, w)
-}
+func (m *MinfBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // Encode - write minf container to sw
-func (m *MinfBox) EncodeSW(sw bits.SliceWriter) error {
-	return EncodeContainerSW(m, sw)
-}
+func (m *MinfBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // Info - write box-specific information
 func (m *MinfBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	return ContainerInfo(m, w, specificBoxLevels, indent, indentStep)
+	_ = "STUB: not implemented"
+	return nil
 }

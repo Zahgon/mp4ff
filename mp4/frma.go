@@ -1,7 +1,6 @@
 package mp4
 
 import (
-	"fmt"
 	"io"
 
 	"github.com/Eyevinn/mp4ff/bits"
@@ -14,56 +13,38 @@ type FrmaBox struct {
 
 // DecodeFrma - box-specific decode
 func DecodeFrma(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	data, err := readBoxBody(r, hdr)
-	if err != nil {
-		return nil, err
-	}
-	sr := bits.NewFixedSliceReader(data)
-	return DecodeFrmaSR(hdr, startPos, sr)
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeFrmaSR - box-specific decode
 func DecodeFrmaSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	if hdr.payloadLen() != 4 {
-		return nil, fmt.Errorf("frma content length is not 4")
-	}
-	return &FrmaBox{DataFormat: string(sr.ReadFixedLengthString(4))}, sr.AccError()
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // Type - return box type
 func (b *FrmaBox) Type() string {
-	return "frma"
+	_ = "STUB: not implemented"
+
+	// Size - return calculated size
+	return ""
 }
 
-// Size - return calculated size
 func (b *FrmaBox) Size() uint64 {
-	return 12
+	_ = "STUB: not implemented"
+
+	// Encode - write box to w
+	return 0
 }
 
-// Encode - write box to w
-func (b *FrmaBox) Encode(w io.Writer) error {
-	sw := bits.NewFixedSliceWriter(int(b.Size()))
-	err := b.EncodeSW(sw)
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(sw.Bytes())
-	return err
-}
+func (b *FrmaBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // EncodeSW - box-specific encode to slicewriter
-func (b *FrmaBox) EncodeSW(sw bits.SliceWriter) error {
-	err := EncodeHeaderSW(b, sw)
-	if err != nil {
-		return err
-	}
-	sw.WriteString(b.DataFormat, false)
-	return sw.AccError()
-}
+func (b *FrmaBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // Info - write box info to w
 func (b *FrmaBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) (err error) {
-	bd := newInfoDumper(w, indent, b, -1, 0)
-	bd.write(" - dataFormat: %s", b.DataFormat)
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }

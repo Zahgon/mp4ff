@@ -18,72 +18,41 @@ type VmhdBox struct {
 
 // CreateVmhd - Create Video Media Header Box
 func CreateVmhd() *VmhdBox {
+	_ = "STUB: not implemented"
 	// Flags should be 0x000001 according to ISO/IEC 14496-12 Sec.12.1.2.1
-	return &VmhdBox{Flags: 0x000001}
+	return nil
 }
 
 // DecodeVmhd - box-specific decode
 func DecodeVmhd(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	data, err := readBoxBody(r, hdr)
-	if err != nil {
-		return nil, err
-	}
-	sr := bits.NewFixedSliceReader(data)
-	return DecodeVmhdSR(hdr, startPos, sr)
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeVmhdSR - box-specific decode
 func DecodeVmhdSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	versionAndFlags := sr.ReadUint32()
-	b := VmhdBox{
-		Version:      byte(versionAndFlags >> 24),
-		Flags:        versionAndFlags & flagsMask,
-		GraphicsMode: sr.ReadUint16(),
-	}
-	for i := 0; i < 3; i++ {
-		b.OpColor[i] = sr.ReadUint16()
-	}
-	return &b, sr.AccError()
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // Type - box-specific type
 func (b *VmhdBox) Type() string {
-	return "vmhd"
+	_ = "STUB: not implemented"
+
+	// Size - calculated size of box
+	return ""
 }
 
-// Size - calculated size of box
-func (b *VmhdBox) Size() uint64 {
-	return boxHeaderSize + 12
-}
+func (b *VmhdBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
 // Encode - write box to w
-func (b *VmhdBox) Encode(w io.Writer) error {
-	sw := bits.NewFixedSliceWriter(int(b.Size()))
-	err := b.EncodeSW(sw)
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(sw.Bytes())
-	return err
-}
+func (b *VmhdBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // EncodeSW - box-specific encode to slicewriter
-func (b *VmhdBox) EncodeSW(sw bits.SliceWriter) error {
-	err := EncodeHeaderSW(b, sw)
-	if err != nil {
-		return err
-	}
-	versionAndFlags := (uint32(b.Version) << 24) + b.Flags
-	sw.WriteUint32(versionAndFlags)
-	sw.WriteUint16(b.GraphicsMode)
-	for i := 0; i < 3; i++ {
-		sw.WriteUint16(b.OpColor[i])
-	}
-	return sw.AccError()
-}
+func (b *VmhdBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // Info - write box-specific information
 func (b *VmhdBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, b, int(b.Version), b.Flags)
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }

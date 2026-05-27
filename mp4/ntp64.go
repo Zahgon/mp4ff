@@ -10,38 +10,22 @@ const (
 type NTP64 uint64
 
 // Seconds returns integral seconds part of NTP64
-func (n NTP64) Seconds() uint32 {
-	return uint32(n >> 32)
-}
+func (n NTP64) Seconds() uint32 { _ = "STUB: not implemented"; return 0 }
 
 // UTCSeconds returns seconds of NTP64 shifted to UNIX epoch.
-func (n NTP64) UTCSeconds() uint64 {
-	return uint64(n.Seconds()) - NTPEpochOffset
-}
+func (n NTP64) UTCSeconds() uint64 { _ = "STUB: not implemented"; return 0 }
 
 // Fraction returns 32-bit fractional part of NTP64.
-func (n NTP64) Fraction() uint32 {
-	return uint32(n & 0xffffffff)
-}
+func (n NTP64) Fraction() uint32 { _ = "STUB: not implemented"; return 0 }
 
 // UTC returns NTP64 as UTC time in seconds.
-func (n NTP64) UTC() float64 {
-	return float64(n.UTCSeconds()) + float64(n.Fraction())/float64(1<<32)
-}
+func (n NTP64) UTC() float64 { _ = "STUB: not implemented"; return 0 }
 
 // Time returns NTP64 as time.Time in UTC.
-func (n NTP64) Time() time.Time {
-	return time.Unix(int64(n.UTCSeconds()), int64(float64(n.Fraction())*1.e9/float64((1<<32)))).UTC()
-}
+func (n NTP64) Time() time.Time { _ = "STUB: not implemented"; return *new(time.Time) }
 
 // NewNTP64 creates NTP64 from UTC time in seconds.
-func NewNTP64(utcTime float64) NTP64 {
-	seconds := uint64(utcTime)
-	fraction := uint64((utcTime - float64(seconds)) * float64(1<<32))
-	return NTP64((seconds+NTPEpochOffset)<<32 | fraction)
-}
+func NewNTP64(utcTime float64) NTP64 { _ = "STUB: not implemented"; return *new(NTP64) }
 
 // String returns NTP64 as UTC time in string format.
-func (n NTP64) String() string {
-	return n.Time().String()
-}
+func (n NTP64) String() string { _ = "STUB: not implemented"; return "" }

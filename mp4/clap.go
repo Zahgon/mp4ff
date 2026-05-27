@@ -20,72 +20,34 @@ type ClapBox struct {
 
 // DecodeClap - box-specific decode
 func DecodeClap(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	data, err := readBoxBody(r, hdr)
-	if err != nil {
-		return nil, err
-	}
-	sr := bits.NewFixedSliceReader(data)
-	return DecodeClapSR(hdr, startPos, sr)
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeClapSR - box-specific decode
 func DecodeClapSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	clap := ClapBox{}
-	clap.CleanApertureWidthN = sr.ReadUint32()
-	clap.CleanApertureWidthD = sr.ReadUint32()
-	clap.CleanApertureHeightN = sr.ReadUint32()
-	clap.CleanApertureHeightD = sr.ReadUint32()
-	clap.HorizOffN = sr.ReadUint32()
-	clap.HorizOffD = sr.ReadUint32()
-	clap.VertOffN = sr.ReadUint32()
-	clap.VertOffD = sr.ReadUint32()
-	return &clap, sr.AccError()
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // Type - box type
 func (b *ClapBox) Type() string {
-	return "clap"
+	_ = "STUB: not implemented"
+
+	// Size - calculated size of box
+	return ""
 }
 
-// Size - calculated size of box
-func (b *ClapBox) Size() uint64 {
-	return uint64(boxHeaderSize + 32)
-}
+func (b *ClapBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
 // Encode - write box to w
-func (b *ClapBox) Encode(w io.Writer) error {
-	sw := bits.NewFixedSliceWriter(int(b.Size()))
-	err := b.EncodeSW(sw)
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(sw.Bytes())
-	return err
-}
+func (b *ClapBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // EncodeSW - box-specific encode to slicewriter
-func (b *ClapBox) EncodeSW(sw bits.SliceWriter) error {
-	err := EncodeHeaderSW(b, sw)
-	if err != nil {
-		return err
-	}
-	sw.WriteUint32(b.CleanApertureWidthN)
-	sw.WriteUint32(b.CleanApertureWidthD)
-	sw.WriteUint32(b.CleanApertureHeightN)
-	sw.WriteUint32(b.CleanApertureHeightD)
-	sw.WriteUint32(b.HorizOffN)
-	sw.WriteUint32(b.HorizOffD)
-	sw.WriteUint32(b.VertOffN)
-	sw.WriteUint32(b.VertOffD)
-	return sw.AccError()
-}
+func (b *ClapBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // Info - write box-specific information
 func (b *ClapBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, b, -1, 0)
-	bd.write(" - cleanAperturWidth: %d/%d", b.CleanApertureWidthN, b.CleanApertureWidthD)
-	bd.write(" - cleanApertureHeight: %d/%d", b.CleanApertureHeightN, b.CleanApertureHeightD)
-	bd.write(" - horizOff: %d/%d", b.HorizOffN, b.HorizOffD)
-	bd.write(" - vertOff: %d/%d", b.VertOffN, b.VertOffD)
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }

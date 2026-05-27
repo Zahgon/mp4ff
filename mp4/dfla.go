@@ -32,124 +32,59 @@ type DfLaBox struct {
 
 // DecodeDfLa - box-specific decode
 func DecodeDfLa(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	data, err := readBoxBody(r, hdr)
-	if err != nil {
-		return nil, err
-	}
-	sr := bits.NewFixedSliceReader(data)
-	return DecodeDfLaSR(hdr, startPos, sr)
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeDfLaSR - box-specific decode
 func DecodeDfLaSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	versionAndFlags := sr.ReadUint32()
-	version := byte(versionAndFlags >> 24)
-	b := &DfLaBox{
-		Version:        version,
-		Flags:          versionAndFlags & flagsMask,
-		MetadataBlocks: []FLACMetadataBlock{},
-	}
-
-	// Read metadata blocks until end of box
-	payloadLen := hdr.payloadLen() - 4 // subtract version and flags
-	bytesRead := 0
-
-	for bytesRead < payloadLen {
-		// Read first byte containing last flag and block type
-		firstByte := sr.ReadUint8()
-		lastFlag := (firstByte & 0x80) != 0
-		blockType := firstByte & 0x7F
-
-		// Read 24-bit length
-		length := sr.ReadUint24()
-
-		// Read block data
-		blockData := sr.ReadBytes(int(length))
-
-		block := FLACMetadataBlock{
-			LastMetadataBlockFlag: lastFlag,
-			BlockType:             blockType,
-			Length:                length,
-			BlockData:             blockData,
-		}
-
-		b.MetadataBlocks = append(b.MetadataBlocks, block)
-		bytesRead += 4 + int(length) // 1 byte header + 3 bytes length + data
-
-		// If this was the last block, stop reading
-		if lastFlag {
-			break
-		}
-	}
-
-	return b, sr.AccError()
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
+
+// Read metadata blocks until end of box
+// subtract version and flags
+
+// Read first byte containing last flag and block type
+
+// Read 24-bit length
+
+// Read block data
+
+// 1 byte header + 3 bytes length + data
+
+// If this was the last block, stop reading
 
 // Type - return box type
 func (b *DfLaBox) Type() string {
-	return "dfLa"
+	_ = "STUB: not implemented"
+
+	// Size - return calculated size
+	return ""
 }
 
-// Size - return calculated size
-func (b *DfLaBox) Size() uint64 {
-	size := uint64(boxHeaderSize + 4) // header + version/flags
-	for _, block := range b.MetadataBlocks {
-		size += 4 + uint64(block.Length) // 1 byte header + 3 bytes length + data
-	}
-	return size
-}
+func (b *DfLaBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
+
+// header + version/flags
+
+// 1 byte header + 3 bytes length + data
 
 // Encode - write box to w
-func (b *DfLaBox) Encode(w io.Writer) error {
-	sw := bits.NewFixedSliceWriter(int(b.Size()))
-	err := b.EncodeSW(sw)
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(sw.Bytes())
-	return err
-}
+func (b *DfLaBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // EncodeSW - box-specific encode to slicewriter
-func (b *DfLaBox) EncodeSW(sw bits.SliceWriter) error {
-	err := EncodeHeaderSW(b, sw)
-	if err != nil {
-		return err
-	}
-	versionAndFlags := (uint32(b.Version) << 24) + b.Flags
-	sw.WriteUint32(versionAndFlags)
+func (b *DfLaBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
-	for i, block := range b.MetadataBlocks {
-		// Write first byte with last flag and block type
-		firstByte := block.BlockType & 0x7F
-		if block.LastMetadataBlockFlag {
-			firstByte |= 0x80
-		}
-		// If this is the last block in the array, set the last flag
-		if i == len(b.MetadataBlocks)-1 {
-			firstByte |= 0x80
-		}
-		sw.WriteUint8(firstByte)
+// Write first byte with last flag and block type
 
-		// Write 24-bit length
-		sw.WriteUint24(block.Length)
+// If this is the last block in the array, set the last flag
 
-		// Write block data
-		sw.WriteBytes(block.BlockData)
-	}
+// Write 24-bit length
 
-	return sw.AccError()
-}
+// Write block data
 
 // Info - write box-specific information
 func (b *DfLaBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, b, int(b.Version), b.Flags)
-	bd.write(" - metadataBlockCount: %d", len(b.MetadataBlocks))
-	for i, block := range b.MetadataBlocks {
-		bd.write(" - block[%d]:", i)
-		bd.write("   - lastMetadataBlockFlag: %t", block.LastMetadataBlockFlag)
-		bd.write("   - blockType: %d", block.BlockType)
-		bd.write("   - length: %d", block.Length)
-	}
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }

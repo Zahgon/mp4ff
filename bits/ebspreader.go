@@ -1,9 +1,7 @@
 package bits
 
 import (
-	"encoding/binary"
 	"errors"
-	"fmt"
 	"io"
 )
 
@@ -28,237 +26,69 @@ type EBSPReader struct {
 }
 
 // NewEBSPReader return a new EBSP reader stopping reading at first error.
-func NewEBSPReader(rd io.Reader) *EBSPReader {
-	return &EBSPReader{
-		rd:  rd,
-		pos: -1,
-	}
-}
+func NewEBSPReader(rd io.Reader) *EBSPReader { _ = "STUB: not implemented"; return nil }
 
 // AccError returns the accumulated error. If no error, returns nil.
 func (r *EBSPReader) AccError() error {
-	return r.err
+	_ = "STUB: not implemented"
+
+	// NrBytesRead returns how many bytes read into parser.
+	return nil
 }
 
-// NrBytesRead returns how many bytes read into parser.
 func (r *EBSPReader) NrBytesRead() int {
-	return r.pos + 1 // Starts at -1
+	_ = "STUB: not implemented"
+	// Starts at -1
+	return 0
 }
 
 // NrBitsRead returns total number of bits read into parser.
-func (r *EBSPReader) NrBitsRead() int {
-	nrBits := r.NrBytesRead() * 8
-	if r.NrBitsReadInCurrentByte() != 8 {
-		nrBits += r.NrBitsReadInCurrentByte() - 8
-	}
-	return nrBits
-}
+func (r *EBSPReader) NrBitsRead() int { _ = "STUB: not implemented"; return 0 }
 
 // NrBitsReadInCurrentByte returns number of bits read in current byte.
 func (r *EBSPReader) NrBitsReadInCurrentByte() int {
-	return 8 - r.n
+	_ = "STUB: not implemented"
+
+	// Read reads n bits and respects and accumulates errors. If error, returns 0.
+	return 0
 }
 
-// Read reads n bits and respects and accumulates errors. If error, returns 0.
-func (r *EBSPReader) Read(n int) uint {
-	if r.err != nil {
-		return 0
-	}
-	var err error
-	for r.n < n {
-		r.v <<= 8
-		var b uint8
-		err = binary.Read(r.rd, binary.BigEndian, &b)
-		if err != nil {
-			r.err = err
-			return 0
-		}
-		r.pos++
-		if r.zeroCount == 2 && b == startCodeEmulationPreventionByte {
-			err = binary.Read(r.rd, binary.BigEndian, &b)
-			if err != nil {
-				r.err = err
-				return 0
-			}
-			r.pos++
-			r.zeroCount = 0
-		}
-		if b != 0 {
-			r.zeroCount = 0
-		} else {
-			r.zeroCount++
-		}
-		r.v |= uint(b)
-
-		r.n += 8
-	}
-	v := r.v >> uint(r.n-n)
-
-	r.n -= n
-	r.v &= Mask(r.n)
-
-	return v
-}
+func (r *EBSPReader) Read(n int) uint { _ = "STUB: not implemented"; return 0 }
 
 // ReadBytes read n bytes and return nil if new or accumulated error.
-func (r *EBSPReader) ReadBytes(n int) []byte {
-	if r.err != nil {
-		return nil
-	}
-	payload := make([]byte, n)
-	for i := 0; i < n; i++ {
-		b := byte(r.Read(8))
-		payload[i] = b
-	}
-	if r.err != nil {
-		return nil
-	}
-	return payload
-}
+func (r *EBSPReader) ReadBytes(n int) []byte { _ = "STUB: not implemented"; return nil }
 
 // ReadFlag reads 1 bit and translates a bool.
-func (r *EBSPReader) ReadFlag() bool {
-	return r.Read(1) == 1
-}
+func (r *EBSPReader) ReadFlag() bool { _ = "STUB: not implemented"; return false }
 
 // ReadExpGolomb reads one unsigned exponential Golomb code.
-func (r *EBSPReader) ReadExpGolomb() uint {
-	if r.err != nil {
-		return 0
-	}
-	leadingZeroBits := 0
-
-	for {
-		b := r.Read(1)
-		if r.err != nil {
-			return 0
-		}
-		if b == 1 {
-			break
-		}
-		leadingZeroBits++
-	}
-
-	var res uint = (1 << leadingZeroBits) - 1
-
-	endBits := r.Read(leadingZeroBits)
-	if r.err != nil {
-		return 0
-	}
-
-	return res + endBits
-}
+func (r *EBSPReader) ReadExpGolomb() uint { _ = "STUB: not implemented"; return 0 }
 
 // ReadSignedGolomb reads one signed exponential Golomb code.
-func (r *EBSPReader) ReadSignedGolomb() int {
-	if r.err != nil {
-		return 0
-	}
-	unsignedGolomb := r.ReadExpGolomb()
-	if r.err != nil {
-		return 0
-	}
-	if unsignedGolomb%2 == 1 {
-		return int((unsignedGolomb + 1) / 2)
-	}
-	return -int(unsignedGolomb / 2)
-}
+func (r *EBSPReader) ReadSignedGolomb() int { _ = "STUB: not implemented"; return 0 }
 
 // IsSeeker returns true if underluing reader supports Seek interface.
-func (r *EBSPReader) IsSeeker() bool {
-	_, ok := r.rd.(io.ReadSeeker)
-	return ok
-}
+func (r *EBSPReader) IsSeeker() bool { _ = "STUB: not implemented"; return false }
 
 // MoreRbspData returns false if next bit is 1 and last 1-bit in fullSlice.
 // Underlying reader must support ReadSeeker interface to reset after check.
 // Return false, nil if underlying error.
-func (r *EBSPReader) MoreRbspData() (bool, error) {
-	if !r.IsSeeker() {
-		return false, ErrNotReadSeeker
-	}
-	// Find out if next position is the last 1
-	stateCopy := *r
+func (r *EBSPReader) MoreRbspData() (bool, error) { _ = "STUB: not implemented"; return false, nil }
 
-	firstBit := r.Read(1)
-	if r.err != nil {
-		return false, nil
-	}
-	if firstBit != 1 {
-		err := r.reset(stateCopy)
-		if err != nil {
-			return false, err
-		}
-		return true, nil
-	}
-	// If all remaining bits are zero, there is no more rbsp data
-	more := false
-	for {
-		b := r.Read(1)
-		if r.err == io.EOF {
-			r.err = nil // Reset
-			break
-		}
-		if r.err != nil {
-			return false, nil
-		}
-		if b == 1 {
-			more = true
-			break
-		}
-	}
-	err := r.reset(stateCopy)
-	if err != nil {
-		return false, err
-	}
-	return more, nil
-}
+// Find out if next position is the last 1
+
+// If all remaining bits are zero, there is no more rbsp data
+
+// Reset
 
 // reset resets EBSPReader based on copy of previous state.
-func (r *EBSPReader) reset(prevState EBSPReader) error {
-	rdSeek, _ := r.rd.(io.ReadSeeker)
-	_, err := rdSeek.Seek(int64(prevState.pos+1), 0)
-	if err != nil {
-		return err
-	}
-	r.n = prevState.n
-	r.v = prevState.v
-	r.pos = prevState.pos
-	r.zeroCount = prevState.zeroCount
-	return nil
-}
+func (r *EBSPReader) reset(prevState EBSPReader) error { _ = "STUB: not implemented"; return nil }
 
 // ReadRbspTrailingBits reads rbsp_traling_bits. Returns error if wrong pattern.
 // If other error, returns nil and let AccError() provide that error.
-func (r *EBSPReader) ReadRbspTrailingBits() error {
-	if r.err != nil {
-		return nil
-	}
-	firstBit := r.Read(1)
-	if r.err != nil {
-		return nil
-	}
-	if firstBit != 1 {
-		return fmt.Errorf("rbspTrailingBits don't start with 1")
-	}
-	for {
-		b := r.Read(1)
-		if r.err == io.EOF {
-			r.err = nil // Reset
-			return nil
-		}
-		if r.err != nil {
-			return nil
-		}
-		if b == 1 {
-			return fmt.Errorf("another 1 in RbspTrailingBits")
-		}
-	}
-}
+func (r *EBSPReader) ReadRbspTrailingBits() error { _ = "STUB: not implemented"; return nil }
+
+// Reset
 
 // SetError sets an error if not already set.
-func (r *EBSPReader) SetError(err error) {
-	if r.err == nil {
-		r.err = err
-	}
-}
+func (r *EBSPReader) SetError(err error) { _ = "STUB: not implemented"; return }

@@ -19,57 +19,37 @@ type DataBox struct {
 
 // DecodeData - decode Data (from mov_write_string_data_tag in movenc.c in ffmpeg)
 func DecodeData(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	data, err := readBoxBody(r, hdr)
-	if err != nil {
-		return nil, err
-	}
-	sr := bits.NewFixedSliceReader(data)
-	return DecodeDataSR(hdr, startPos, sr)
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeDataSR - decode Data (from mov_write_string_data_tag in movenc.c in ffmpeg)
 func DecodeDataSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	_ = sr.ReadUint32() // Should be 1
-	_ = sr.ReadUint32() // Should be 0
-	return &DataBox{sr.ReadBytes(hdr.payloadLen() - 8)}, sr.AccError()
+	_ = "STUB: not implemented"
+	// Should be 1
+	return *new(Box), nil
 }
+
+// Should be 0
 
 // Type - box type
 func (b *DataBox) Type() string {
-	return "data"
+	_ = "STUB: not implemented"
+
+	// Size - calculated size of box
+	return ""
 }
 
-// Size - calculated size of box
-func (b *DataBox) Size() uint64 {
-	return uint64(boxHeaderSize + 8 + len(b.Data))
-}
+func (b *DataBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
 // Encode - write box to w
-func (b *DataBox) Encode(w io.Writer) error {
-	sw := bits.NewFixedSliceWriter(int(b.Size()))
-	err := b.EncodeSW(sw)
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(sw.Bytes())
-	return err
-}
+func (b *DataBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // EncodeSW - box-specific encode to slicewriter
-func (b *DataBox) EncodeSW(sw bits.SliceWriter) error {
-	err := EncodeHeaderSW(b, sw)
-	if err != nil {
-		return err
-	}
-	sw.WriteUint32(0x00000001)
-	sw.WriteUint32(0x00000000)
-	sw.WriteBytes(b.Data)
-	return sw.AccError()
-}
+func (b *DataBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // Info - box-specific Info
 func (b *DataBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, b, -1, 0)
-	bd.write(" - data: %s", string(b.Data))
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }

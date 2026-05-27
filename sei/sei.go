@@ -1,12 +1,8 @@
 package sei
 
 import (
-	"encoding/hex"
 	"errors"
-	"fmt"
 	"io"
-
-	"github.com/Eyevinn/mp4ff/bits"
 )
 
 var ErrRbspTrailingBitsMissing = errors.New("rbsp_trailing_bits byte 0x80 is missing")
@@ -230,224 +226,7 @@ const (
 type SEIType uint
 
 // String provides the camel-case name for the SEIType.
-func (h SEIType) String() string {
-	name := ""
-	switch h {
-	case SEIBufferingPeriodType:
-		name = "SEIBufferingPeriodType"
-	case SEIPicTimingType:
-		name = "SEIPicTimingType"
-	case SEIPanScanRectType:
-		name = "SEIPanScanRectType"
-	case SEIFillerPayloadType:
-		name = "SEIFillerPayloadType"
-	case SEIUserDataRegisteredITUtT35Type:
-		name = "SEIUserDataRegisteredITUtT35Type"
-	case SEIUserDataUnregisteredType:
-		name = "SEIUserDataUnregisteredType"
-	case SEIRecoveryPointType:
-		name = "SEIRecoveryPointType"
-	case SEIDecRefPicMarkingRepetitionType:
-		name = "SEIDecRefPicMarkingRepetitionType"
-	case SEISparePicType:
-		name = "SEISparePicType"
-	case SEISceneInfoType:
-		name = "SEISceneInfoType"
-	case SEISubSeqInfoType:
-		name = "SEISubSeqInfoType"
-	case SEISubSeqLayerCharacteristicsType:
-		name = "SEISubSeqLayerCharacteristicsType"
-	case SEISubSeqCharacteristicsType:
-		name = "SEISubSeqCharacteristicsType"
-	case SEIFullFrameFreezeType:
-		name = "SEIFullFrameFreezeType"
-	case SEIFullFrameFreezeReleaseType:
-		name = "SEIFullFrameFreezeReleaseType"
-	case SEIPictureSnapShotType:
-		name = "SEIPictureSnapShotType"
-	case SEIProgressiveRefinementSegmentStartType:
-		name = "SEIProgressiveRefinementSegmentStartType"
-	case SEIProgressiveRefinementSegmentStartEnd:
-		name = "SEIProgressiveRefinementSegmentStartEnd"
-	case SEIMotionConstrainedSliceGroupSetType:
-		name = "SEIMotionConstrainedSliceGroupSetType"
-	case SEIFilmGrainCharacteristicsType:
-		name = "SEIFilmGrainCharacteristicsType"
-	case SEIDeblockingFilterDisplayPreferenceType:
-		name = "SEIDeblockingFilterDisplayPreferenceType"
-	case SEIStereoVideoInfoType:
-		name = "SEIStereoVideoInfoType"
-	case SEIPostFilterHintType:
-		name = "SEIPostFilterHintType"
-	case SEIToneMappingInfoType:
-		name = "SEIToneMappingInfoType"
-	case SEIScalabilityInfoType:
-		name = "SEIScalabilityInfoType"
-	case SEISubPicScalableLayerType:
-		name = "SEISubPicScalableLayerType"
-	case SEINonRequiredLayerRepType:
-		name = "SEINonRequiredLayerRepType"
-	case SEIPriorityLayerInfoType:
-		name = "SEIPriorityLayerInfoType"
-	case SEILayersNotPresentAVCType:
-		name = "SEILayersNotPresentAVCType"
-	case SEILayerDependencyChangeType:
-		name = "SEILayerDependencyChangeType"
-	case SEIScalableNestingAVCType:
-		name = "SEIScalableNestingAVCType"
-	case SEIBaseLayerTemporalHrdType:
-		name = "SEIBaseLayerTemporalHrdType"
-	case SEIQualityLayerIntegrityCheckTpe:
-		name = "SEIQualityLayerIntegrityCheckTpe"
-	case SEIRedundantPicPropertyType:
-		name = "SEIRedundantPicPropertyType"
-	case SEITl0DepRepIndexType:
-		name = "SEITl0DepRepIndexType"
-	case SEITlSwitchingPointType:
-		name = "SEITlSwitchingPointType"
-	case SEIParallelDecodingInfoType:
-		name = "SEIParallelDecodingInfoType"
-	case SEIMVCScalableNestingType:
-		name = "SEIMVCScalableNestingType"
-	case SEIViewScalabilityInfoType:
-		name = "SEIViewScalabilityInfoType"
-	case SEIMultiviewSceneInfoAVCType:
-		name = "SEIMultiviewSceneInfoAVCType"
-	case SEIMultiviewAcquisitionInfoAVCType:
-		name = "SEIMultiviewAcquisitionInfoAVCType"
-	case SEINonRequiredViewComponentType:
-		name = "SEINonRequiredViewComponentType"
-	case SEIViewDependencyChangeType:
-		name = "SEIViewDependencyChangeType"
-	case SEIOperationPointsNotPresentType:
-		name = "SEIOperationPointsNotPresentType"
-	case SEIBaseViewTemporalHrdType:
-		name = "SEIBaseViewTemporalHrdType"
-	case SEIFramePackingArrangementType:
-		name = "SEIFramePackingArrangementType"
-	case SEIMultiviewViewPositionAVCType:
-		name = "SEIMultiviewViewPositionAVCType"
-	case SEIDisplayOrientationType:
-		name = "SEIDisplayOrientationType"
-	case SEIMvcdScalableNestingType:
-		name = "SEIMvcdScalableNestingType"
-	case SEIMvcdViewScalabilityInfoType:
-		name = "SEIMvcdViewScalabilityInfoType"
-	case SEIDepthRepresentationInfoAVCType:
-		name = "SEIDepthRepresentationInfoAVCType"
-	case SEIThreeDimensionalReferenceDisplaysInfoAVCType:
-		name = "SEIThreeDimensionalReferenceDisplaysInfoAVCType"
-	case SEIDepthTimingType:
-		name = "SEIDepthTimingType"
-	case SEIDepthSamplingInfoType:
-		name = "SEIDepthSamplingInfoType"
-	case SEIConstrainedDepthParameterSetIdentifierType:
-		name = "SEIConstrainedDepthParameterSetIdentifierType"
-	case SEIGreenMetaDataType:
-		name = "SEIGreenMetaDataType"
-	case SEIStructureOfPicturesInfoType:
-		name = "SEIStructureOfPicturesInfoType"
-	case SEIActiveParameterSetsType:
-		name = "SEIActiveParameterSetsType"
-	case SEIDecodingUnitInfoType:
-		name = "SEIDecodingUnitInfoType"
-	case SEITemporalSubLayerZeroIndexType:
-		name = "SEITemporalSubLayerZeroIndexType"
-	case SEIDecodedPictureHashType:
-		name = "SEIDecodedPictureHashType"
-	case SEIScalableNestingHEVCType:
-		name = "SEIScalableNestingHEVCType"
-	case SEIRegionRefreshInfoType:
-		name = "SEIRegionRefreshInfoType"
-	case SEINoDisplayType:
-		name = "SEINoDisplayType"
-	case SEITimeCodeType:
-		name = "SEITimeCodeType"
-	case SEIMasteringDisplayColourVolumeType:
-		name = "SEIMasteringDisplayColourVolumeType"
-	case SEISegmentedRectFramePackingArrangementType:
-		name = "SEISegmentedRectFramePackingArrangementType"
-	case SEITemporalMotionConstrainedTileSetsType:
-		name = "SEITemporalMotionConstrainedTileSetsType"
-	case SEIChromaResamplingFilterHintType:
-		name = "SEIChromaResamplingFilterHintType"
-	case SEIKneeFunctionInfoType:
-		name = "SEIKneeFunctionInfoType"
-	case SEIColourRemappingInfoType:
-		name = "SEIColourRemappingInfoType"
-	case SEIDeinterlacedFieldIdentificationType:
-		name = "SEIDeinterlacedFieldIdentificationType"
-	case SEIContentLightLevelInformationType:
-		name = "SEIContentLightLevelInformationType"
-	case SEIDependentRapIndicationType:
-		name = "SEIDependentRapIndicationType"
-	case SEICodedRegionCompletionType:
-		name = "SEICodedRegionCompletionType"
-	case SEIAlternativeTransferCharacteristicsType:
-		name = "SEIAlternativeTransferCharacteristicsType"
-	case SEIAmbientViewingEnvironmentType:
-		name = "SEIAmbientViewingEnvironmentType"
-	case SEIContentColourVolumeType:
-		name = "SEIContentColourVolumeType"
-	case SEIEquirectangularProjectionType:
-		name = "SEIEquirectangularProjectionType"
-	case SEICubemapProjectionType:
-		name = "SEICubemapProjectionType"
-	case SEIFisheyeVideoInfoType:
-		name = "SEIFisheyeVideoInfoType"
-	case SEISphereRotationType:
-		name = "SEISphereRotationType"
-	case SEIRegionwisePackingType:
-		name = "SEIRegionwisePackingType"
-	case SEIOmniViewportType:
-		name = "SEIOmniViewportType"
-	case SEIRegionalNestingType:
-		name = "SEIRegionalNestingType"
-	case SEIMctsExtractionInfoSetsType:
-		name = "SEIMctsExtractionInfoSetsType"
-	case SEIMctsExtractionInfoNesting:
-		name = "SEIMctsExtractionInfoNesting"
-	case SEILayersNotPresentHEVCType:
-		name = "SEILayersNotPresentHEVCType"
-	case SEIInterLayerConstrainedTileSetsType:
-		name = "SEIInterLayerConstrainedTileSetsType"
-	case SEIBspNestingType:
-		name = "SEIBspNestingType"
-	case SEIBspInitialArrivalTimeType:
-		name = "SEIBspInitialArrivalTimeType"
-	case SEISubBitstreamPropertyType:
-		name = "SEISubBitstreamPropertyType"
-	case SEIAlphaChannelInfoType:
-		name = "SEIAlphaChannelInfoType"
-	case SEIOverlayInfoType:
-		name = "SEIOverlayInfoType"
-	case SEITemporalMvPredictionConstraintsType:
-		name = "SEITemporalMvPredictionConstraintsType"
-	case SEIFrameFieldInfoType:
-		name = "SEIFrameFieldInfoType"
-	case SEIThreeDimensionalReferenceDisplaysInfoHEVCType:
-		name = "SEIThreeDimensionalReferenceDisplaysInfoHEVCType"
-	case SEIDepthRepresentationInfoHEVCType:
-		name = "SEIDepthRepresentationInfoHEVCType"
-	case SEIMultiviewSceneInfoHEVCType:
-		name = "SEIMultiviewSceneInfoHEVCType"
-	case SEIMultiviewAcquisitionInfoHEVCType:
-		name = "SEIMultiviewAcquisitionInfoHEVCType"
-	case SEIMultiviewViewPositionHEVCType:
-		name = "SEIMultiviewViewPositionHEVCType"
-	case SEIAlternativeDepthInfoType:
-		name = "SEIAlternativeDepthInfoType"
-	case SEISeiManifestType:
-		name = "SEISeiManifestType"
-	case SEISeiPrefixIndicationType:
-		name = "SEISeiPrefixIndicationType"
-	case SEIAnnotatedRegionsType:
-		name = "SEIAnnotatedRegionsType"
-	default:
-		name = "Reserved SEI type"
-	}
-	return fmt.Sprintf("%s (%d)", name, h)
-}
+func (h SEIType) String() string { _ = "STUB: not implemented"; return "" }
 
 type Codec uint
 
@@ -473,45 +252,12 @@ type SEIMessage interface {
 
 // DecodeSEIMessage decodes or at least provides some information about an SEIMessage.
 func DecodeSEIMessage(sd *SEIData, codec Codec) (SEIMessage, error) {
-	switch codec {
-	case AVC:
-		switch sd.Type() {
-		case SEIPicTimingType:
-			return DecodePicTimingAvcSEI(sd)
-		case SEIUserDataRegisteredITUtT35Type:
-			return DecodeUserDataRegisteredSEI(sd)
-		case SEIUserDataUnregisteredType:
-			return DecodeUserDataUnregisteredSEI(sd)
-		default:
-			return DecodeGeneralSEI(sd), nil
-		}
-	case HEVC:
-		switch sd.Type() {
-		case SEIUserDataRegisteredITUtT35Type:
-			return DecodeUserDataRegisteredSEI(sd)
-		case SEIUserDataUnregisteredType:
-			return DecodeUserDataUnregisteredSEI(sd)
-		case SEITimeCodeType:
-			return DecodeTimeCodeSEI(sd)
-		case SEIMasteringDisplayColourVolumeType:
-			return DecodeMasteringDisplayColourVolumeSEI(sd)
-		case SEIContentLightLevelInformationType:
-			return DecodeContentLightLevelInformationSEI(sd)
-		default:
-			return DecodeGeneralSEI(sd), nil
-		}
-	default:
-		return nil, fmt.Errorf("unknown codec type %d", codec)
-	}
+	_ = "STUB: not implemented"
+	return *new(SEIMessage), nil
 }
 
 // DecodeGeneralSEI is a fallback decoder for non-implemented SEI message types.
-func DecodeGeneralSEI(sd *SEIData) SEIMessage {
-	return &SEIData{
-		sd.Type(),
-		sd.Payload(),
-	}
-}
+func DecodeGeneralSEI(sd *SEIData) SEIMessage { _ = "STUB: not implemented"; return *new(SEIMessage) }
 
 // SEIData is raw parsed SEI message including payload rbsp data.
 type SEIData struct {
@@ -520,92 +266,34 @@ type SEIData struct {
 }
 
 // NewSEIData returns SEIData struct.
-func NewSEIData(msgType uint, payload []byte) *SEIData {
-	return &SEIData{msgType, payload}
-}
+func NewSEIData(msgType uint, payload []byte) *SEIData { _ = "STUB: not implemented"; return nil }
 
 // Type returns the SEI payload type.
-func (s *SEIData) Type() uint {
-	return s.payloadType
-}
+func (s *SEIData) Type() uint { _ = "STUB: not implemented"; return 0 }
 
 // Payload returns the SEI raw rbsp payload.
 func (s *SEIData) Payload() []byte {
-	return s.payload
+	_ = "STUB: not implemented"
+
+	// String provides a description of the SEI message.
+	return nil
 }
 
-// String provides a description of the SEI message.
-func (s *SEIData) String() string {
-	msgType := SEIType(s.Type())
-	return fmt.Sprintf("%s, size=%d, %q", msgType, s.Size(), hex.EncodeToString(s.payload))
-}
+func (s *SEIData) String() string { _ = "STUB: not implemented"; return "" }
 
 // Size is the size in bytes of the raw SEI message rbsp payload.
-func (s *SEIData) Size() uint {
-	return uint(len(s.payload))
-}
+func (s *SEIData) Size() uint { _ = "STUB: not implemented"; return 0 }
 
 // ExtractSEIData parses ebsp (after NALU header) and returns a slice of SEIData in rbsp format.
 // In case the rbsp_trailing_bits 0x80 byte is missing at end, []seiData and
 // an ErrMissingRbspTrailingBits error are both returned.
 func ExtractSEIData(r io.ReadSeeker) (seiData []SEIData, err error) {
-	ar := bits.NewEBSPReader(r)
-	for {
-		payloadType := uint(0)
-		for {
-			nextByte := ar.Read(8)
-			payloadType += uint(nextByte)
-			if nextByte != 0xff {
-				break
-			}
-		}
-		payloadSize := uint32(0)
-		for {
-			nextByte := ar.Read(8)
-			payloadSize += uint32(nextByte)
-			if nextByte != 0xff {
-				break
-			}
-		}
-		payload := ar.ReadBytes(int(payloadSize))
-		if ar.AccError() != nil {
-			return nil, ar.AccError()
-		}
-
-		seiData = append(seiData, SEIData{payloadType, payload})
-		if ar.AccError() != nil {
-			return nil, ar.AccError()
-		}
-		// Break loop if no more rbsp data (end of sei messages)
-		more, err := ar.MoreRbspData()
-		if err != nil {
-			return nil, err
-		}
-		if ar.AccError() == io.EOF {
-			return seiData, ErrRbspTrailingBitsMissing
-		}
-		if ar.AccError() != nil {
-			return nil, ar.AccError()
-		}
-		if !more {
-			break
-		}
-	}
-	return seiData, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }
+
+// Break loop if no more rbsp data (end of sei messages)
 
 // WriteSEIMessages writes the messages in EBSP format with RBSPTrailing bits.
 // The output corresponds to an SEI NAL unit payload.
-func WriteSEIMessages(w io.Writer, msgs []SEIMessage) error {
-	bw := bits.NewEBSPWriter(w)
-	for _, msg := range msgs {
-		bw.WriteSEIValue(msg.Type())
-		bw.WriteSEIValue(msg.Size())
-		pl := msg.Payload()
-		for _, b := range pl {
-			bw.Write(uint(b), 8)
-		}
-	}
-	bw.WriteRbspTrailingBits()
-	return bw.AccError()
-}
+func WriteSEIMessages(w io.Writer, msgs []SEIMessage) error { _ = "STUB: not implemented"; return nil }

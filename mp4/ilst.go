@@ -13,62 +13,45 @@ type IlstBox struct {
 }
 
 // AddChild - Add a child box and update SampleCount
-func (b *IlstBox) AddChild(child Box) {
-	b.Children = append(b.Children, child)
-}
+func (b *IlstBox) AddChild(child Box) { _ = "STUB: not implemented"; return }
 
 // DecodeIlstSR - box-specific decode
 func DecodeIlstSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	children, err := DecodeContainerChildrenSR(hdr, startPos+8, startPos+hdr.Size, sr)
-	if err != nil {
-		return nil, err
-	}
-	b := &IlstBox{}
-	for _, c := range children {
-		b.AddChild(c)
-	}
-	return b, nil
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeIlst - box-specific decode
 func DecodeIlst(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	children, err := DecodeContainerChildren(hdr, startPos+8, startPos+hdr.Size, r)
-	if err != nil {
-		return nil, err
-	}
-	b := &IlstBox{}
-	for _, c := range children {
-		b.AddChild(c)
-	}
-	return b, nil
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // Type - box-specific type
 func (b *IlstBox) Type() string {
-	return "ilst"
+	_ = "STUB: not implemented"
+
+	// Size - box-specific type
+	return ""
 }
 
-// Size - box-specific type
-func (b *IlstBox) Size() uint64 {
-	return containerSize(b.Children)
-}
+func (b *IlstBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
 // GetChildren - list of child boxes
 func (b *IlstBox) GetChildren() []Box {
-	return b.Children
+	_ = "STUB: not implemented"
+
+	// Encode - write ilst container to w
+	return nil
 }
 
-// Encode - write ilst container to w
-func (b *IlstBox) Encode(w io.Writer) error {
-	return EncodeContainer(b, w)
-}
+func (b *IlstBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // Encode - write ilst container to sw
-func (b *IlstBox) EncodeSW(sw bits.SliceWriter) error {
-	return EncodeContainerSW(b, sw)
-}
+func (b *IlstBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // Info - write box-specific information
 func (b *IlstBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	return ContainerInfo(b, w, specificBoxLevels, indent, indentStep)
+	_ = "STUB: not implemented"
+	return nil
 }

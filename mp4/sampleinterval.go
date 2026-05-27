@@ -10,10 +10,4 @@ type SampleInterval struct {
 }
 
 // Reset resets sample interval while retaining allocated slice-backing arrays
-func (s *SampleInterval) Reset() {
-	s.FirstDecodeTime = 0
-	s.Samples = s.Samples[:0]
-	s.OffsetInMdat = 0
-	s.Size = 0
-	s.Data = s.Data[:0]
-}
+func (s *SampleInterval) Reset() { _ = "STUB: not implemented"; return }

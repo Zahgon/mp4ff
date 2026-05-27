@@ -1,7 +1,6 @@
 package mp4
 
 import (
-	"fmt"
 	"io"
 
 	"github.com/Eyevinn/mp4ff/bits"
@@ -37,120 +36,51 @@ type SubSegment struct {
 type SubSegmentRange uint32
 
 // Level - return level
-func (s SubSegmentRange) Level() uint8 {
-	return uint8(s >> 24)
-}
+func (s SubSegmentRange) Level() uint8 { _ = "STUB: not implemented"; return 0 }
 
 // RangeSize - return range size
-func (s SubSegmentRange) RangeSize() uint32 {
-	return uint32(s & 0x00ffffff)
-}
+func (s SubSegmentRange) RangeSize() uint32 { _ = "STUB: not implemented"; return 0 }
 
 // NewSubSegmentRange - create new SubSegmentRange
 func NewSubSegmentRange(level uint8, rangeSize uint32) SubSegmentRange {
-	return SubSegmentRange(uint32(level)<<24 | rangeSize)
+	_ = "STUB: not implemented"
+	return *new(SubSegmentRange)
 }
 
 // DecodeSsix - box-specific decode
 func DecodeSsix(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	data, err := readBoxBody(r, hdr)
-	if err != nil {
-		return nil, err
-	}
-	sr := bits.NewFixedSliceReader(data)
-	return DecodeSsixSR(hdr, startPos, sr)
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // DecodeSsixSR - box-specific decode
 func DecodeSsixSR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	versionAndFlags := sr.ReadUint32()
-	version := byte(versionAndFlags >> 24)
-
-	b := &SsixBox{
-		Version: version,
-		Flags:   versionAndFlags & flagsMask,
-	}
-	if hdr.Size < 16 {
-		return nil, fmt.Errorf("ssix: box is too small")
-	}
-	subSegmentCount := sr.ReadUint32()
-	sizeLeft := hdr.Size - 16
-	if subSegmentCount > uint32(sizeLeft/8) {
-		return nil, fmt.Errorf("too many subsegments: %d", subSegmentCount)
-	}
-	b.SubSegments = make([]SubSegment, subSegmentCount)
-	for i := 0; i < int(subSegmentCount); i++ {
-		rangeCount := sr.ReadUint32()
-		sizeLeft -= 4
-		if rangeCount > uint32(sizeLeft/4) {
-			return nil, fmt.Errorf("too many ranges: %d", rangeCount)
-		}
-		subSeg := SubSegment{
-			Ranges: make([]SubSegmentRange, rangeCount),
-		}
-		for j := 0; j < int(rangeCount); j++ {
-			subSeg.Ranges[j] = SubSegmentRange(sr.ReadUint32())
-		}
-		b.SubSegments[i] = subSeg
-	}
-	return b, sr.AccError()
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
 
 // Type - return box type
 func (b *SsixBox) Type() string {
-	return "ssix"
+	_ = "STUB: not implemented"
+
+	// Size - return calculated size
+	return ""
 }
 
-// Size - return calculated size
 func (b *SsixBox) Size() uint64 {
+	_ = "STUB: not implemented"
 	// Add up all fields depending on version
-	size := uint64(boxHeaderSize + 4 + 4)
-	for _, ss := range b.SubSegments {
-		size += 4 + uint64(len(ss.Ranges))*4
-	}
-	return size
+	return 0
 }
 
 // Encode - write box to w
-func (b *SsixBox) Encode(w io.Writer) error {
-	sw := bits.NewFixedSliceWriter(int(b.Size()))
-	err := b.EncodeSW(sw)
-	if err != nil {
-		return err
-	}
-	_, err = w.Write(sw.Bytes())
-	return err
-}
+func (b *SsixBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
 // EncodeSW - box-specific encode to slicewriter
-func (b *SsixBox) EncodeSW(sw bits.SliceWriter) error {
-	err := EncodeHeaderSW(b, sw)
-	if err != nil {
-		return err
-	}
-	versionAndFlags := (uint32(b.Version) << 24) + b.Flags
-	sw.WriteUint32(versionAndFlags)
-	sw.WriteUint32(uint32(len(b.SubSegments)))
-	for _, ss := range b.SubSegments {
-		sw.WriteUint32(uint32(len(ss.Ranges)))
-		for _, sr := range ss.Ranges {
-			sw.WriteUint32(uint32(sr))
-		}
-	}
-	return sw.AccError()
-}
+func (b *SsixBox) EncodeSW(sw bits.SliceWriter) error { _ = "STUB: not implemented"; return nil }
 
 // Info - more info for level 1
 func (b *SsixBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, b, int(b.Version), b.Flags)
-	bd.write(" - subSegmentCount: %d", len(b.SubSegments))
-	level := getInfoLevel(b, specificBoxLevels)
-	if level >= 1 {
-		for i, ss := range b.SubSegments {
-			for j, rng := range ss.Ranges {
-				bd.write(" - subSegment[%d] range[%d]: level=%d rangeSize=%d", i+1, j+1, rng.Level(), rng.RangeSize())
-			}
-		}
-	}
-	return bd.err
+	_ = "STUB: not implemented"
+	return nil
 }

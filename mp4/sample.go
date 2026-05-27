@@ -10,19 +10,12 @@ type Sample struct {
 
 // NewSample - create Sample with trun data
 func NewSample(flags uint32, dur uint32, size uint32, compositionTimeOffset int32) Sample {
-	return Sample{
-		Flags:                 flags,
-		Dur:                   dur,
-		Size:                  size,
-		CompositionTimeOffset: compositionTimeOffset,
-	}
+	_ = "STUB: not implemented"
+	return *new(Sample)
 }
 
 // IsSync - check sync by masking flags including dependsOn
-func (s *Sample) IsSync() bool {
-	decFlags := DecodeSampleFlags(s.Flags)
-	return !decFlags.SampleIsNonSync && (decFlags.SampleDependsOn == 2)
-}
+func (s *Sample) IsSync() bool { _ = "STUB: not implemented"; return false }
 
 // FullSample - include accumulated time and data. Times in mdhd timescale
 type FullSample struct {
@@ -32,6 +25,4 @@ type FullSample struct {
 }
 
 // PresentationTime - DecodeTime displaced by composition time offset (possibly negative)
-func (s *FullSample) PresentationTime() int64 {
-	return int64(s.DecodeTime) + int64(s.CompositionTimeOffset)
-}
+func (s *FullSample) PresentationTime() int64 { _ = "STUB: not implemented"; return 0 }

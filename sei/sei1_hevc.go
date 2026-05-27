@@ -1,12 +1,5 @@
 package sei
 
-import (
-	"bytes"
-	"fmt"
-
-	"github.com/Eyevinn/mp4ff/bits"
-)
-
 // PicTimingHevcSEI carries the data of an SEI 1 PicTiming message for HEVC.
 // The corresponding SEI 1 for AVC is very different. Time code is in SEI 136 for HEVC.
 // Defined in ISO/IEC 23008-2 Ed 5. Section D.2.3 (page 372) and D.3.2.3 (page 405)
@@ -42,62 +35,22 @@ type HEVCFrameFieldInfo struct {
 }
 
 func DecodePicTimingHevcSEI(sd *SEIData, exPar HEVCPicTimingParams) (SEIMessage, error) {
-	buf := bytes.NewBuffer(sd.Payload())
-	br := bits.NewEBSPReader(buf)
-	pt := PicTimingHevcSEI{
-		payload: sd.Payload(),
-	}
-	if exPar.FrameFieldInfoPresentFlag {
-		frameFieldInfo := &HEVCFrameFieldInfo{}
-		frameFieldInfo.PicStruct = uint8(br.Read(4))
-		frameFieldInfo.SourceScanType = uint8(br.Read(2))
-		frameFieldInfo.DuplicateFlag = br.ReadFlag()
-		pt.FrameFieldInfo = frameFieldInfo
-	}
-	if exPar.CpbDpbDelaysPresentFlag {
-		pt.AuCpbRemovalDelayMinus1 = uint32(br.Read(int(exPar.AuCbpRemovalDelayLengthMinus1) + 1))
-		pt.PicDpbOutputDelay = uint32(br.Read(int(exPar.DpbOutputDelayLengthMinus1) + 1))
-		if exPar.SubPicHrdParamsPresentFlag {
-			pt.PicDpbOutputDuDelay = uint32(br.Read(int(exPar.DpbOutputDelayDuLengthMinus1) + 1))
-			if exPar.SubPicCpbParamsInPicTimingSeiFlag {
-				pt.NumDecodingUnitsMinus1 = uint32(br.ReadExpGolomb())
-				pt.DuCommonCpbRemovalDelayFlag = br.ReadFlag()
-				if pt.DuCommonCpbRemovalDelayFlag {
-					pt.DuCommonCpbRemovalDelayIncrementMinus1 = uint32(br.Read(int(exPar.DuCpbRemovalDelayIncrementLengthMinus1) + 1))
-				}
-				for i := uint32(0); i <= pt.NumDecodingUnitsMinus1; i++ {
-					pt.NumNalusInDuMinus1[i] = uint32(br.ReadExpGolomb())
-					if !pt.DuCommonCpbRemovalDelayFlag && i < pt.NumDecodingUnitsMinus1 {
-						pt.DuCpbRemovalDelayIncrementMinus1[i] = uint32(br.Read(int(exPar.DuCpbRemovalDelayIncrementLengthMinus1) + 1))
-					}
-				}
-			}
-		}
-	}
-	return &pt, br.AccError()
+	_ = "STUB: not implemented"
+	return *new(SEIMessage), nil
 }
 
 // Type returns the SEI payload type.
-func (s *PicTimingHevcSEI) Type() uint {
-	return SEIPicTimingType
-}
+func (s *PicTimingHevcSEI) Type() uint { _ = "STUB: not implemented"; return 0 }
 
 // Payload returns the SEI raw rbsp payload.
 func (s *PicTimingHevcSEI) Payload() []byte {
-	return s.payload
+	_ = "STUB: not implemented"
+
+	// String returns string representation of PicTiming SEI1.
+	return nil
 }
 
-// String returns string representation of PicTiming SEI1.
-func (s *PicTimingHevcSEI) String() string {
-	msgType := SEIType(s.Type())
-	msg := fmt.Sprintf("%s: ", msgType)
-	if s.FrameFieldInfo != nil {
-		msg += fmt.Sprintf("FrameFieldInfo: %+v, ", s.FrameFieldInfo)
-	}
-	return msg
-}
+func (s *PicTimingHevcSEI) String() string { _ = "STUB: not implemented"; return "" }
 
 // Size is size in bytes of raw SEI message rbsp payload.
-func (s *PicTimingHevcSEI) Size() uint {
-	return uint(len(s.payload))
-}
+func (s *PicTimingHevcSEI) Size() uint { _ = "STUB: not implemented"; return 0 }

@@ -1,8 +1,6 @@
 package mp4
 
 import (
-	"bytes"
-	"fmt"
 	"io"
 
 	"github.com/Eyevinn/mp4ff/bits"
@@ -30,249 +28,109 @@ type AudioSampleEntryBox struct {
 
 // NewAudioSampleEntryBox - Create new empty mp4a box
 func NewAudioSampleEntryBox(name string) *AudioSampleEntryBox {
-	return &AudioSampleEntryBox{name: name, DataReferenceIndex: 1}
+	_ = "STUB: not implemented"
+	return nil
 }
 
-func makeFixed32Uint(nr uint16) uint32 {
-	return uint32(nr) << 16
-}
+func makeFixed32Uint(nr uint16) uint32 { _ = "STUB: not implemented"; return 0 }
 
-func makeUint16FromFixed32(nr uint32) uint16 {
-	return uint16(nr >> 16)
-}
+func makeUint16FromFixed32(nr uint32) uint16 { _ = "STUB: not implemented"; return 0 }
 
 // CreateAudioSampleEntryBox - Create new AudioSampleEntry such as mp4
 func CreateAudioSampleEntryBox(name string, nrChannels, sampleSize, sampleRate uint16, child Box) *AudioSampleEntryBox {
-	a := &AudioSampleEntryBox{
-		name:               name,
-		DataReferenceIndex: 1,
-		ChannelCount:       nrChannels,
-		SampleSize:         sampleSize,
-		SampleRate:         sampleRate,
-		Children:           nil,
-	}
-	if child != nil {
-		a.AddChild(child)
-	}
-	return a
+	_ = "STUB: not implemented"
+	return nil
 }
 
 // AddChild - add a child box (avcC normally, but clap and pasp could be part of visual entry)
-func (a *AudioSampleEntryBox) AddChild(child Box) {
-	switch child.Type() {
-	case "esds":
-		a.Esds = child.(*EsdsBox)
-	case "dac3":
-		a.Dac3 = child.(*Dac3Box)
-	case "dac4":
-		a.Dac4 = child.(*Dac4Box)
-	case "dec3":
-		a.Dec3 = child.(*Dec3Box)
-	case "dfLa":
-		a.DfLa = child.(*DfLaBox)
-	case "dOps":
-		a.Dops = child.(*DopsBox)
-	case "iacb":
-		a.Iacb = child.(*IacbBox)
-	case "mhaC":
-		a.MhaC = child.(*MhaCBox)
-	case "btrt":
-		a.Btrt = child.(*BtrtBox)
-	case "sinf":
-		a.Sinf = child.(*SinfBox)
-	}
-
-	a.Children = append(a.Children, child)
-}
+func (a *AudioSampleEntryBox) AddChild(child Box) { _ = "STUB: not implemented"; return }
 
 const nrAudioSampleBytesBeforeChildren = 36
 
 // DecodeAudioSampleEntry - decode mp4a... box
 func DecodeAudioSampleEntry(hdr BoxHeader, startPos uint64, r io.Reader) (Box, error) {
-	data, err := readBoxBody(r, hdr)
-	if err != nil {
-		return nil, err
-	}
-	sr := bits.NewFixedSliceReader(data)
-	a := NewAudioSampleEntryBox(hdr.Name)
-
-	// 14496-12 8.5.2.2 Sample entry (8 bytes)
-	sr.SkipBytes(6) // Skip 6 reserved bytes
-	a.DataReferenceIndex = sr.ReadUint16()
-
-	// 14496-12 12.2.3.2 Audio Sample entry (20 bytes)
-
-	sr.SkipBytes(8) //  reserved == 0
-	a.ChannelCount = sr.ReadUint16()
-	a.SampleSize = sr.ReadUint16()
-	sr.SkipBytes(4) // Predefined + reserved
-	a.SampleRate = makeUint16FromFixed32(sr.ReadUint32())
-
-	remaining := sr.RemainingBytes()
-	restReader := bytes.NewReader(remaining)
-
-	pos := startPos + nrAudioSampleBytesBeforeChildren // Size of all previous data
-	for {
-		box, err := DecodeBox(pos, restReader)
-		if err == io.EOF {
-			break
-		} else if err != nil {
-			return nil, err
-		}
-		if box != nil {
-			a.AddChild(box)
-			pos += box.Size()
-		}
-		if pos == startPos+hdr.Size {
-			break
-		} else if pos > startPos+hdr.Size {
-			return nil, fmt.Errorf("bad size when decoding %s", hdr.Name)
-		}
-	}
-	return a, nil
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
+
+// 14496-12 8.5.2.2 Sample entry (8 bytes)
+// Skip 6 reserved bytes
+
+// 14496-12 12.2.3.2 Audio Sample entry (20 bytes)
+
+//  reserved == 0
+
+// Predefined + reserved
+
+// Size of all previous data
 
 // DecodeAudioSampleEntry - decode mp4a... box
 func DecodeAudioSampleEntrySR(hdr BoxHeader, startPos uint64, sr bits.SliceReader) (Box, error) {
-	a := NewAudioSampleEntryBox(hdr.Name)
-
-	// 14496-12 8.5.2.2 Sample entry (8 bytes)
-	sr.SkipBytes(6) // Skip 6 reserved bytes
-	a.DataReferenceIndex = sr.ReadUint16()
-
-	// 14496-12 12.2.3.2 Audio Sample entry (20 bytes)
-
-	sr.SkipBytes(8) //  reserved == 0
-	a.ChannelCount = sr.ReadUint16()
-	a.SampleSize = sr.ReadUint16()
-	sr.SkipBytes(4) // Predefined + reserved
-	a.SampleRate = makeUint16FromFixed32(sr.ReadUint32())
-
-	pos := startPos + nrAudioSampleBytesBeforeChildren // Size of all previous data
-	lastPos := startPos + hdr.Size
-	for pos < lastPos {
-		box, err := DecodeBoxSR(pos, sr)
-		if err != nil {
-			return nil, err
-		}
-		if box != nil {
-			a.AddChild(box)
-			pos += box.Size()
-		}
-	}
-	return a, sr.AccError()
+	_ = "STUB: not implemented"
+	return *new(Box), nil
 }
+
+// 14496-12 8.5.2.2 Sample entry (8 bytes)
+// Skip 6 reserved bytes
+
+// 14496-12 12.2.3.2 Audio Sample entry (20 bytes)
+
+//  reserved == 0
+
+// Predefined + reserved
+
+// Size of all previous data
 
 // Type - return box type
 func (a *AudioSampleEntryBox) Type() string {
-	return a.name
+	_ = "STUB: not implemented"
+
+	// SetType sets the type (name) of the box
+	return ""
 }
 
-// SetType sets the type (name) of the box
 func (a *AudioSampleEntryBox) SetType(name string) {
-	a.name = name
+	_ = "STUB: not implemented"
+
+	// Size - return calculated size
+	return
 }
 
-// Size - return calculated size
-func (a *AudioSampleEntryBox) Size() uint64 {
-	totalSize := uint64(nrAudioSampleBytesBeforeChildren)
-	for _, child := range a.Children {
-		totalSize += child.Size()
-	}
-	return totalSize
-}
+func (a *AudioSampleEntryBox) Size() uint64 { _ = "STUB: not implemented"; return 0 }
 
 // Encode - write box to w
-func (a *AudioSampleEntryBox) Encode(w io.Writer) error {
-	err := EncodeHeader(a, w)
-	if err != nil {
-		return err
-	}
-	buf := makebuf(a)
-	sw := bits.NewFixedSliceWriterFromSlice(buf)
-	sw.WriteZeroBytes(6)
-	sw.WriteUint16(a.DataReferenceIndex)
-	sw.WriteZeroBytes(8) // pre_defined and reserved
-	sw.WriteUint16(a.ChannelCount)
-	sw.WriteUint16(a.SampleSize)
-	sw.WriteZeroBytes(4)                          // Pre-defined and reserved
-	sw.WriteUint32(makeFixed32Uint(a.SampleRate)) // nrAudioSampleBytesBeforeChildren bytes this far
+func (a *AudioSampleEntryBox) Encode(w io.Writer) error { _ = "STUB: not implemented"; return nil }
 
-	_, err = w.Write(buf[:sw.Offset()]) // Only write written bytes
-	if err != nil {
-		return err
-	}
+// pre_defined and reserved
 
-	// Next output child boxes in order
-	for _, child := range a.Children {
-		err = child.Encode(w)
-		if err != nil {
-			return err
-		}
-	}
-	return err
-}
+// Pre-defined and reserved
+// nrAudioSampleBytesBeforeChildren bytes this far
+
+// Only write written bytes
+
+// Next output child boxes in order
 
 // Encode - write box to sw
 func (a *AudioSampleEntryBox) EncodeSW(sw bits.SliceWriter) error {
-	err := EncodeHeaderSW(a, sw)
-	if err != nil {
-		return err
-	}
-	sw.WriteZeroBytes(6)
-	sw.WriteUint16(a.DataReferenceIndex)
-	sw.WriteZeroBytes(8) // pre_defined and reserved
-	sw.WriteUint16(a.ChannelCount)
-	sw.WriteUint16(a.SampleSize)
-	sw.WriteZeroBytes(4)                          // Pre-defined and reserved
-	sw.WriteUint32(makeFixed32Uint(a.SampleRate)) // nrAudioSampleBytesBeforeChildren bytes this far
-
-	// Next output child boxes in order
-	for _, child := range a.Children {
-		err = child.EncodeSW(sw)
-		if err != nil {
-			return err
-		}
-	}
-	return err
+	_ = "STUB: not implemented"
+	return nil
 }
+
+// pre_defined and reserved
+
+// Pre-defined and reserved
+// nrAudioSampleBytesBeforeChildren bytes this far
+
+// Next output child boxes in order
 
 // Info - write box info to w
 func (a *AudioSampleEntryBox) Info(w io.Writer, specificBoxLevels, indent, indentStep string) error {
-	bd := newInfoDumper(w, indent, a, -1, 0)
-	if bd.err != nil {
-		return bd.err
-	}
-	bd.write(" - data_reference_index: %d", a.DataReferenceIndex)
-	bd.write(" - channel_count: %d", a.ChannelCount)
-	bd.write(" - sample_size: %d", a.SampleSize)
-	bd.write(" - sample_rate: %d", a.SampleRate)
-	var err error
-	for _, child := range a.Children {
-		err = child.Info(w, specificBoxLevels, indent+indentStep, indentStep)
-		if err != nil {
-			return err
-		}
-	}
+	_ = "STUB: not implemented"
 	return nil
 }
 
 // RemoveEncryption - remove sinf box and set type to unencrypted type
 func (a *AudioSampleEntryBox) RemoveEncryption() (*SinfBox, error) {
-	if a.name != "enca" {
-		return nil, fmt.Errorf("is not encrypted: %s", a.name)
-	}
-	sinf := a.Sinf
-	if sinf == nil {
-		return nil, fmt.Errorf("does not have sinf box")
-	}
-	for i := range a.Children {
-		if a.Children[i].Type() == "sinf" {
-			a.Children = append(a.Children[:i], a.Children[i+1:]...)
-			a.Sinf = nil
-			break
-		}
-	}
-	a.name = sinf.Frma.DataFormat
-	return sinf, nil
+	_ = "STUB: not implemented"
+	return nil, nil
 }

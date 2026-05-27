@@ -1,8 +1,6 @@
 package bits
 
 import (
-	"encoding/binary"
-	"fmt"
 	"io"
 )
 
@@ -18,109 +16,46 @@ type Reader struct {
 
 // AccError - accumulated error is first error that occurred
 func (r *Reader) AccError() error {
-	return r.err
+	_ = "STUB: not implemented"
+
+	// NewReader return a new Reader that accumulates errors.
+	return nil
 }
 
-// NewReader return a new Reader that accumulates errors.
-func NewReader(rd io.Reader) *Reader {
-	return &Reader{
-		rd:  rd,
-		pos: -1,
-	}
-}
+func NewReader(rd io.Reader) *Reader { _ = "STUB: not implemented"; return nil }
 
 // Read - read n bits. Return 0, if error now or previously
-func (r *Reader) Read(n int) uint {
-	if r.err != nil {
-		return 0
-	}
-
-	for r.n < n {
-		r.value <<= 8
-		var newByte uint8
-		err := binary.Read(r.rd, binary.BigEndian, &newByte)
-		if err != nil {
-			r.err = err
-			return 0
-		}
-		r.pos++
-		r.value |= uint(newByte)
-
-		r.n += 8
-	}
-	value := r.value >> uint(r.n-n)
-
-	r.n -= n
-	r.value &= Mask(r.n)
-
-	return value
-}
+func (r *Reader) Read(n int) uint { _ = "STUB: not implemented"; return 0 }
 
 // ReadSigned reads a 2-complemented signed int with n bits.
-func (r *Reader) ReadSigned(n int) int {
-	nr := int(r.Read(n))
-	firstBit := nr >> (n - 1)
-	if firstBit == 1 {
-		nr |= -1 << n
-	}
-	return nr
-}
+func (r *Reader) ReadSigned(n int) int { _ = "STUB: not implemented"; return 0 }
 
 // ReadFlag reads 1 bit and interprets as a boolean flag. Returns false if error now or previously.
-func (r *Reader) ReadFlag() bool {
-	bit := r.Read(1)
-	if r.err != nil {
-		return false
-	}
-	return bit == 1
-}
+func (r *Reader) ReadFlag() bool { _ = "STUB: not implemented"; return false }
 
 // ReadRemainingBytes reads remaining bytes if byte-aligned. Returns nil if error now or previously.
-func (r *Reader) ReadRemainingBytes() []byte {
-	if r.err != nil {
-		return nil
-	}
-	if r.n != 0 {
-		r.err = fmt.Errorf("%d bit instead of byte alignment when reading remaining bytes", r.n)
-		return nil
-	}
-	rest, err := io.ReadAll(r.rd)
-	if err != nil {
-		r.err = err
-		return nil
-	}
-	return rest
-}
+func (r *Reader) ReadRemainingBytes() []byte { _ = "STUB: not implemented"; return nil }
 
 // NrBytesRead returns how many bytes read into parser.
 func (r *Reader) NrBytesRead() int {
-	return r.pos + 1 // Starts at -1
+	_ = "STUB: not implemented"
+	// Starts at -1
+	return 0
 }
 
 // NrBitsRead returns total number of bits read into parser.
-func (r *Reader) NrBitsRead() int {
-	nrBits := r.NrBytesRead() * 8
-	if r.NrBitsReadInCurrentByte() != 8 {
-		nrBits += r.NrBitsReadInCurrentByte() - 8
-	}
-	return nrBits
-}
+func (r *Reader) NrBitsRead() int { _ = "STUB: not implemented"; return 0 }
 
 // NrBitsReadInCurrentByte returns number of bits read in current byte.
 func (r *Reader) NrBitsReadInCurrentByte() int {
-	return 8 - r.n
+	_ = "STUB: not implemented"
+
+	// ByteAlign aligns the reader to the next byte boundary by discarding
+	// any remaining bits in the current byte. This is commonly used in
+	// multimedia formats where data structures need to be byte-aligned.
+	return 0
 }
 
-// ByteAlign aligns the reader to the next byte boundary by discarding
-// any remaining bits in the current byte. This is commonly used in
-// multimedia formats where data structures need to be byte-aligned.
-func (r *Reader) ByteAlign() {
-	if r.err != nil {
-		return
-	}
-	if r.n > 0 {
-		// Discard remaining bits in current byte to align to byte boundary
-		r.n = 0
-		r.value = 0
-	}
-}
+func (r *Reader) ByteAlign() { _ = "STUB: not implemented"; return }
+
+// Discard remaining bits in current byte to align to byte boundary
